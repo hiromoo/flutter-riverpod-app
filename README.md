@@ -19,7 +19,17 @@ The skill instructions are in [SKILL.md](SKILL.md); focused guidance is availabl
 
 ### Codex
 
-Place this repository where Codex can use it as a skill, then invoke the `flutter-riverpod-skill` skill for Flutter development tasks.
+Clone this repository into a Codex skills directory, keeping `flutter-riverpod-skill` as the directory name:
+
+```sh
+# Available in all projects
+git clone https://github.com/hiromoo/flutter-riverpod-skill.git ~/.agents/skills/flutter-riverpod-skill
+
+# Or only in one repository (run from the repository root)
+git clone https://github.com/hiromoo/flutter-riverpod-skill.git .agents/skills/flutter-riverpod-skill
+```
+
+If you already have a local clone, symlink it instead, for example `ln -s "$PWD" ~/.agents/skills/flutter-riverpod-skill`. Restart Codex if the skill does not appear. Codex uses the skill automatically for matching Flutter tasks; you can also invoke it explicitly by mentioning `$flutter-riverpod-skill` or selecting it from `/skills`.
 
 ### Claude Code
 
@@ -27,10 +37,10 @@ Clone this repository into a Claude Code skills directory, keeping `flutter-rive
 
 ```sh
 # Available in all projects
-git clone https://github.com/hiromoo/riverpod_ai_docs.git ~/.claude/skills/flutter-riverpod-skill
+git clone https://github.com/hiromoo/flutter-riverpod-skill.git ~/.claude/skills/flutter-riverpod-skill
 
 # Or only in one project (run from the project root)
-git clone https://github.com/hiromoo/riverpod_ai_docs.git .claude/skills/flutter-riverpod-skill
+git clone https://github.com/hiromoo/flutter-riverpod-skill.git .claude/skills/flutter-riverpod-skill
 ```
 
 If you already have a local clone, symlink it instead, for example `ln -s "$PWD" ~/.claude/skills/flutter-riverpod-skill`. Claude Code loads the skill automatically for matching Flutter tasks; you can also invoke it explicitly with `/flutter-riverpod-skill`.

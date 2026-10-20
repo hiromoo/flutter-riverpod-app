@@ -19,7 +19,17 @@ Skill の説明は [SKILL.md](SKILL.md)、目的別の詳しいガイドは [`re
 
 ### Codex
 
-このリポジトリを Codex が Skill として利用できる場所に配置し、Flutter 開発タスクで `flutter-riverpod-skill` を呼び出してください。
+ディレクトリ名を `flutter-riverpod-skill` のまま、Codex の skills ディレクトリにクローンしてください。
+
+```sh
+# すべてのプロジェクトで利用する場合
+git clone https://github.com/hiromoo/flutter-riverpod-skill.git ~/.agents/skills/flutter-riverpod-skill
+
+# 特定のリポジトリだけで利用する場合（リポジトリのルートで実行）
+git clone https://github.com/hiromoo/flutter-riverpod-skill.git .agents/skills/flutter-riverpod-skill
+```
+
+既存のクローンがある場合は、`ln -s "$PWD" ~/.agents/skills/flutter-riverpod-skill` のようにシンボリックリンクを作成しても構いません。Skill が表示されない場合は Codex を再起動してください。該当する Flutter タスクでは Codex が自動的に Skill を使用します。`$flutter-riverpod-skill` と記述するか、`/skills` から選択して明示的に呼び出すこともできます。
 
 ### Claude Code
 
@@ -27,10 +37,10 @@ Skill の説明は [SKILL.md](SKILL.md)、目的別の詳しいガイドは [`re
 
 ```sh
 # すべてのプロジェクトで利用する場合
-git clone https://github.com/hiromoo/riverpod_ai_docs.git ~/.claude/skills/flutter-riverpod-skill
+git clone https://github.com/hiromoo/flutter-riverpod-skill.git ~/.claude/skills/flutter-riverpod-skill
 
 # 特定のプロジェクトだけで利用する場合（プロジェクトのルートで実行）
-git clone https://github.com/hiromoo/riverpod_ai_docs.git .claude/skills/flutter-riverpod-skill
+git clone https://github.com/hiromoo/flutter-riverpod-skill.git .claude/skills/flutter-riverpod-skill
 ```
 
 既存のクローンがある場合は、`ln -s "$PWD" ~/.claude/skills/flutter-riverpod-skill` のようにシンボリックリンクを作成しても構いません。該当する Flutter タスクでは Claude Code が自動的に Skill を読み込みます。`/flutter-riverpod-skill` で明示的に呼び出すこともできます。
