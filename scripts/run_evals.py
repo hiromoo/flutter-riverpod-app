@@ -169,12 +169,16 @@ def archive_downstream(run):
             path.rename(target/name)
 
 
-def skill_overrides():
-    roots = [Path.home()/'.codex/skills', Path.home()/'.agents/skills']
+def skill_overrides(roots=None):
+    roots = roots or [Path.home()/'.codex/skills', Path.home()/'.agents/skills']
     paths = set()
     for root in roots:
-        for path in root.rglob('SKILL.md') if root.exists() else []:
-            paths.update((str(path), str(path.parent)))
+        # Follow symlinked skill directories (Path.rglob skips them on Python 3.13+),
+        # but stop at each skill so its own fixtures and SDKs are not scanned.
+        for parent, dirs, files in os.walk(root, followlinks=True):
+            if 'SKILL.md' in files:
+                paths.update((str(Path(parent)/'SKILL.md'), parent))
+                dirs.clear()
     return 'skills.config=[' + ','.join('{path='+json.dumps(p)+',enabled=false}' for p in sorted(paths)) + ']'
 
 
