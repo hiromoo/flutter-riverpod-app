@@ -164,6 +164,19 @@ class RunnerTests(unittest.TestCase):
         runner.run_codex=fake_run
         self.assertFalse(runner.preflight_role('judge',self.config['judge'],self.root,self.root,None)['isolated'])
 
+    def test_only_usage_limited_preflight_is_archived(self):
+        runner.save(self.root/'preflight.json',{'solver':{'status':'completed','isolated':True},'judge':{'status':'failed','isolated':False}})
+        (self.root/'preflight-judge.jsonl').write_text('{"type":"error","message":"You’ve hit your usage limit."}\n')
+        (self.root/'preflight-judge.txt').write_text('')
+        self.assertTrue(runner.preflight_usage_limited(self.root))
+        runner.archive_preflight(self.root)
+        self.assertFalse((self.root/'preflight.json').exists())
+        self.assertTrue((self.root/'preflight-attempt-1/preflight-judge.jsonl').exists())
+        self.assertFalse(runner.preflight_usage_limited(self.root))
+        runner.save(self.root/'preflight.json',{'judge':{'status':'completed','isolated':False}})
+        (self.root/'preflight-judge.jsonl').write_text('{"type":"error","message":"You’ve hit your usage limit."}\n')
+        self.assertFalse(runner.preflight_usage_limited(self.root))
+
     def test_grade_requires_all_ids_once(self):
         case=self.config['evals'][0]
         grade={'assertions':[{'id':a['id'],'status':'pass','evidence':'lib/file.dart:1'} for a in case['assertions']]}

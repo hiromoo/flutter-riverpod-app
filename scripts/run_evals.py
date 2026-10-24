@@ -15,6 +15,9 @@ import time
 
 ROOT = Path(__file__).resolve().parents[1]
 CONDITIONS = ('without_skill', 'with_skill')
+CASES = ('feature', 'api', 'refactor', 'environment')
+ENVIRONMENTS = ('local', 'staging', 'production')
+CONTRACT_TESTS = {'api': 'api_contract_test.dart', 'environment': 'environment_contract_test.dart'}
 IGNORED = shutil.ignore_patterns('.git', '.dart_tool', 'build', '.fvm', 'node_modules', '__pycache__')
 REGEN_SCRIPT = 'tool/generate_api.sh'
 REGEN_IGNORED = {'.dart_tool', 'build', 'pubspec.lock'}
@@ -48,7 +51,7 @@ def validate(config):
     assert config['solver'] == {'model': 'gpt-6-luna', 'reasoning_effort': 'medium'}
     assert config['judge'] == {'model': 'gpt-6-astra', 'reasoning_effort': 'high'}
     ids = [c['id'] for c in config['evals']]
-    assert len(ids) == len(set(ids)) and set(ids) == {'feature', 'api', 'refactor'}
+    assert len(ids) == len(set(ids)) and set(ids) == set(CASES)
     for case in config['evals']:
         assert case['prompt'] and case['expected_output']
         for f in case['files']:
@@ -232,6 +235,27 @@ def preflight_role(name, role, work, output, env):
                 path.rename(path.with_name(path.stem+'-stale'+path.suffix))
 
 
+def preflight_usage_limited(output):
+    """A preflight that only hit the quota is retried; isolation failures are kept."""
+    if not (output/'preflight.json').exists():
+        return False
+    results = read(output/'preflight.json').values()
+    if all(x['status'] == 'completed' for x in results):
+        return False
+    return any('hit your usage limit' in log.read_text() for log in output.glob('preflight-*.jsonl'))
+
+
+def archive_preflight(output):
+    attempt = 1
+    while (output/f'preflight-attempt-{attempt}').exists():
+        attempt += 1
+    target = output/f'preflight-attempt-{attempt}'
+    target.mkdir()
+    for path in [output/'preflight.json', *output.glob('preflight-*.txt'), *output.glob('preflight-*.jsonl')]:
+        if path.exists():
+            path.rename(target/path.name)
+
+
 def copy_project(source, target):
     shutil.copytree(source, target, ignore=IGNORED, dirs_exist_ok=True)
 
@@ -297,7 +321,7 @@ def verify(case, run, sdk, env):
         return
     work = Path(tempfile.mkdtemp(prefix='skill-verify-', dir='/tmp'))
     copy_project(run/'outputs', work)
-    test = 'api_contract_test.dart' if case['id'] == 'api' else 'ui_contract_test.dart'
+    test = CONTRACT_TESTS.get(case['id'], 'ui_contract_test.dart')
     (work/'test').mkdir(exist_ok=True)
     shutil.copy2(ROOT/'evals/checks'/test, work/'test/evaluator_contract_test.dart')
     checks = []
@@ -314,7 +338,13 @@ def verify(case, run, sdk, env):
         check('generation', [dart, 'run', 'build_runner', 'build'])
         check('analysis', [flutter, 'analyze', 'lib', 'test'])
         flags = ['--dart-define=EVAL_DETAILS=true'] if case['id'] == 'feature' else ['--dart-define=EVAL_RACE=true'] if case['id'] == 'refactor' else []
-        check('contract_tests', [flutter, 'test', *flags, 'test/evaluator_contract_test.dart', '--reporter', 'expanded'])
+        if case['id'] == 'environment':
+            for name in ENVIRONMENTS:
+                define = f'--dart-define-from-file=config/{name}.json'
+                check(f'contract_tests_{name}', [flutter, 'test', define, 'test/evaluator_contract_test.dart', '--reporter', 'expanded'])
+                check(f'web_build_{name}', [flutter, 'build', 'web', define])
+        else:
+            check('contract_tests', [flutter, 'test', *flags, 'test/evaluator_contract_test.dart', '--reporter', 'expanded'])
         check('all_tests', [flutter, 'test', *flags, '--reporter', 'expanded'])
         if case['id'] == 'api':
             pkg = work/'packages/reading_api'
@@ -328,7 +358,8 @@ def verify(case, run, sdk, env):
             verify_regeneration(run, check, checks)
     before, after = read(run/'input-hashes.json'), hashes(run/'outputs')
     protected = ['.fvmrc', 'lib/catalog_gateway.dart']
-    protected += ['api/openapi.yaml'] if case['id'] == 'api' else ['lib/unrelated.dart'] if case['id'] == 'refactor' else []
+    protected += {'api': ['api/openapi.yaml'], 'refactor': ['lib/unrelated.dart'],
+                  'environment': ['lib/catalog_screen.dart', 'lib/demo_gateway.dart']}.get(case['id'], [])
     for name in protected:
         checks.append(dict(id='preserved:'+name, status='completed' if before.get(name) == after.get(name) else 'failed'))
     save(run/'verification.json', dict(checks=checks, workspace=str(work), verifier_hashes=hashes(ROOT/'evals/checks')))
@@ -439,7 +470,7 @@ def aggregate(config, output):
         lines.append(f"| {r['case']} | {r['condition']} | {f['passed']}/{f['total']} | {c['passed']}/{c['total']} | {r['mechanical_passed']}/{r['mechanical_total']} | {r['solver']['status']} | {r['judge']['status']} |")
     lines += ['', '未採点・未検証は合格に含めません。詳細は各実行の grading.json、verification.json、checks/ を参照。',
               'スキルによる因果効果の断定、新規アプリ作成、スキル自動選択、他の実装モデルへの一般化は対象外。',
-              '人による3組のレビューは未実施です。']
+              '人による各組のレビューは未実施です。']
     (output/'summary.md').write_text('\n'.join(lines)+'\n')
     return results
 
@@ -449,7 +480,7 @@ def main():
     parser.add_argument('action', choices=['validate', 'dry-run', 'run', 'verify', 'judge', 'aggregate'])
     parser.add_argument('--output', type=Path, default=ROOT/'eval-results/iteration-1')
     parser.add_argument('--sdk', type=Path, default=Path.home()/'fvm/versions'/read(ROOT/'evals/fixtures/common/.fvmrc')['flutter'])
-    parser.add_argument('--case', choices=['feature', 'api', 'refactor'])
+    parser.add_argument('--case', choices=CASES)
     args = parser.parse_args()
     config = read(ROOT/'evals/evals.json')
     validate(config)
@@ -483,6 +514,8 @@ def main():
         save(output/'manifest.json', manifest)
         snapshot_skill(output/'skill-snapshot')
         save(output/'skill-hashes.json', hashes(output/'skill-snapshot'))
+    if args.action == 'run' and preflight_usage_limited(output):
+        archive_preflight(output)
     if args.action == 'run' and not (output/'preflight.json').exists():
         work = Path(tempfile.mkdtemp(prefix='skill-preflight-', dir='/tmp'))
         preflight = {}
