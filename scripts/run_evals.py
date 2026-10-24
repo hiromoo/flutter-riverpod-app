@@ -21,6 +21,7 @@ CONTRACT_TESTS = {'api': 'api_contract_test.dart', 'environment': 'environment_c
 IGNORED = shutil.ignore_patterns('.git', '.dart_tool', 'build', '.fvm', 'node_modules', '__pycache__')
 REGEN_SCRIPT = 'tool/generate_api.sh'
 REGEN_IGNORED = {'.dart_tool', 'build', 'pubspec.lock'}
+SKILL_SCAN_IGNORED = {'.git', '.dart_tool', 'build', '.fvm', 'node_modules', '.pub-cache'}
 
 
 def read(path):
@@ -176,12 +177,12 @@ def skill_overrides(roots=None):
     roots = roots or [Path.home()/'.codex/skills', Path.home()/'.agents/skills']
     paths = set()
     for root in roots:
-        # Follow symlinked skill directories (Path.rglob skips them on Python 3.13+),
-        # but stop at each skill so its own fixtures and SDKs are not scanned.
+        # Follow symlinked skill directories (Path.rglob skips them on Python 3.13+).
+        # Codex also discovers nested skills, such as snapshots inside a linked repository.
         for parent, dirs, files in os.walk(root, followlinks=True):
+            dirs[:] = [d for d in dirs if d not in SKILL_SCAN_IGNORED]
             if 'SKILL.md' in files:
                 paths.update((str(Path(parent)/'SKILL.md'), parent))
-                dirs.clear()
     return 'skills.config=[' + ','.join('{path='+json.dumps(p)+',enabled=false}' for p in sorted(paths)) + ']'
 
 

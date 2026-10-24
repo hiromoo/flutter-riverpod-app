@@ -117,13 +117,16 @@ class RunnerTests(unittest.TestCase):
         (source/'SKILL.md').write_text('---\nname: linked\n---\n')
         (source/'fixtures/nested').mkdir(parents=True)
         (source/'fixtures/nested/SKILL.md').write_text('---\nname: nested\n---\n')
+        (source/'build/cached').mkdir(parents=True)
+        (source/'build/cached/SKILL.md').write_text('---\nname: cached\n---\n')
         skills=self.root/'skills'
         skills.mkdir()
         (skills/'linked').symlink_to(source,target_is_directory=True)
         overrides=runner.skill_overrides([skills,self.root/'missing'])
         self.assertIn(json.dumps(str(skills/'linked/SKILL.md')),overrides)
         self.assertIn(json.dumps(str(skills/'linked')),overrides)
-        self.assertNotIn('nested',overrides)
+        self.assertIn(json.dumps(str(skills/'linked/fixtures/nested/SKILL.md')),overrides)
+        self.assertNotIn('cached',overrides)
 
     def test_run_codex_records_skill_set_change(self):
         calls=iter(['before','after'])
