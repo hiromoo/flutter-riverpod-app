@@ -16,7 +16,7 @@ The case prompts, expected outputs, and rubric are in [`evals/evals.json`](evals
 ## Requirements and commands
 
 - Python 3.10+, authenticated Codex CLI with `gpt-6-luna` and `gpt-6-astra` access.
-- Flutter **3.47.5**, including its bundled Dart. The default location is `~/fvm/versions/3.47.5`; override with `--sdk /absolute/flutter/sdk`.
+- Flutter **3.47.8**, including its bundled Dart. The default version is read from `evals/fixtures/common/.fvmrc` and resolved under `~/fvm/versions/`; override with `--sdk /absolute/flutter/sdk`. Historical benchmark reports retain the SDK used for those runs.
 - Cached fixture dependencies (`flutter pub get --offline --enforce-lockfile` is run before each task).
 - Java 17+, Node/npm and access to OpenAPI Generator **7.25.0** for the API task. Generator wrapper/version is supplied in the fixture.
 - Permission for the CLI to contact the model service and for Flutter/Dart to write SDK/package caches. Run from an ordinary terminal if an enclosing sandbox prevents this; the child agents still use their own workspace-write/read-only sandboxes. No sandbox-bypass flag is used.

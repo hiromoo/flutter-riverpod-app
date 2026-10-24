@@ -10,19 +10,14 @@ import '../features/reading/data/api_reading_repository.dart';
 import '../features/settings/application/settings_providers.dart';
 import '../features/settings/data/shared_preferences_settings_repository.dart';
 
-const _apiBaseUrl = String.fromEnvironment(
-  'API_BASE_URL',
-  defaultValue: 'http://localhost:8080',
-);
-
-List<Override> createAppOverrides() {
+List<Override> createAppOverrides(String apiBaseUrl) {
   final dio = Dio(BaseOptions(
-    baseUrl: _apiBaseUrl,
+    baseUrl: apiBaseUrl,
     connectTimeout: const Duration(seconds: 5),
     receiveTimeout: const Duration(seconds: 5),
     headers: const {'accept': 'application/json'},
   ));
-  final client = ReadingShelfApiClient(dio: dio, basePathOverride: _apiBaseUrl);
+  final client = ReadingShelfApiClient(dio: dio, basePathOverride: apiBaseUrl);
   final preferences = SharedPreferencesAsync();
 
   return [

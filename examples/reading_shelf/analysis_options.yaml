@@ -16,6 +16,8 @@ analyzer:
     - lib/features/settings/application/settings_providers.g.dart
     - build/**
     - web/**
+    - android/**
+    - ios/**
 
 linter:
   # The lint rules applied to this project can be customized in the

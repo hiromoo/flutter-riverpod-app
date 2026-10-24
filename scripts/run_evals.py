@@ -448,7 +448,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action', choices=['validate', 'dry-run', 'run', 'verify', 'judge', 'aggregate'])
     parser.add_argument('--output', type=Path, default=ROOT/'eval-results/iteration-1')
-    parser.add_argument('--sdk', type=Path, default=Path.home()/'fvm/versions/3.47.5')
+    parser.add_argument('--sdk', type=Path, default=Path.home()/'fvm/versions'/read(ROOT/'evals/fixtures/common/.fvmrc')['flutter'])
     parser.add_argument('--case', choices=['feature', 'api', 'refactor'])
     args = parser.parse_args()
     config = read(ROOT/'evals/evals.json')

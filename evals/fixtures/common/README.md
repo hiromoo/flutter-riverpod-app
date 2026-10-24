@@ -1,6 +1,6 @@
 # Existing Flutter application fixture
 
-Flutter 3.47.5 / Dart 3.13.4, managed by the existing `.fvmrc`.
+Flutter 3.47.8 / Dart 3.13.7, managed by the existing `.fvmrc`.
 Use the provided pinned SDK; dependencies are prepared before the task starts.
 The installed dependencies are available building blocks, not a required architecture.
 

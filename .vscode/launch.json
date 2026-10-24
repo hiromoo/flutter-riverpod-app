@@ -2,25 +2,77 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Reading Shelf (Web)",
+      "name": "Reading Shelf (Local Native)",
       "request": "launch",
       "type": "dart",
       "cwd": "${workspaceFolder}/examples/reading_shelf",
       "program": "${workspaceFolder}/examples/reading_shelf/lib/main.dart",
-      "deviceId": "chrome",
       "toolArgs": [
-        "--web-port",
-        "3000",
-        "--dart-define=API_BASE_URL=http://localhost:8080"
+        "--flavor",
+        "local",
+        "--dart-define-from-file=config/local.json"
       ],
       "preLaunchTask": "Reading Shelf: Start API"
-    }
-  ],
-  "compounds": [
+    },
     {
-      "name": "Reading Shelf (Web + API)",
-      "configurations": [
-        "Reading Shelf (Web)"
+      "name": "Reading Shelf (Local Web)",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "${workspaceFolder}/examples/reading_shelf",
+      "program": "${workspaceFolder}/examples/reading_shelf/lib/main.dart",
+      "toolArgs": [
+        "--dart-define-from-file=config/local.json",
+        "--web-port",
+        "3000"
+      ],
+      "preLaunchTask": "Reading Shelf: Start API"
+    },
+    {
+      "name": "Reading Shelf (Staging Native)",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "${workspaceFolder}/examples/reading_shelf",
+      "program": "${workspaceFolder}/examples/reading_shelf/lib/main.dart",
+      "toolArgs": [
+        "--flavor",
+        "staging",
+        "--dart-define-from-file=config/staging.json"
+      ]
+    },
+    {
+      "name": "Reading Shelf (Staging Web)",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "${workspaceFolder}/examples/reading_shelf",
+      "program": "${workspaceFolder}/examples/reading_shelf/lib/main.dart",
+      "toolArgs": [
+        "--dart-define-from-file=config/staging.json",
+        "--web-port",
+        "3000"
+      ]
+    },
+    {
+      "name": "Reading Shelf (Production Native)",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "${workspaceFolder}/examples/reading_shelf",
+      "program": "${workspaceFolder}/examples/reading_shelf/lib/main.dart",
+      "toolArgs": [
+        "--flavor",
+        "production",
+        "--dart-define-from-file=config/production.json"
+      ]
+    },
+    {
+      "name": "Reading Shelf (Production Web)",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "${workspaceFolder}/examples/reading_shelf",
+      "program": "${workspaceFolder}/examples/reading_shelf/lib/main.dart",
+      "toolArgs": [
+        "--dart-define-from-file=config/production.json",
+        "--web-port",
+        "3000"
       ]
     }
   ]

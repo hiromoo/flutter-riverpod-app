@@ -19,6 +19,10 @@ dependencies:
   go_router: ^18.0.1
   shared_preferences: ^2.5.5
   dio: ^5.7.0
+  supabase_flutter: ^2.18.3
+  firebase_core: ^4.15.2
+  firebase_auth: ^6.3.0
+  cloud_firestore: ^6.2.0
   reading_shelf_api_client:
     path: packages/api_client
 dev_dependencies:
@@ -29,6 +33,7 @@ dev_dependencies:
   riverpod_generator: ^4.0.9
   freezed: ^4.0.0-dev.3
   go_router_builder: ^4.5.0
+  flutter_flavorizr: 2.6.0
 flutter:
   generate: true
   uses-material-design: true

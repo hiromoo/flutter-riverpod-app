@@ -235,4 +235,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String ratingStars(int rating) {
     return '$rating out of 5 stars';
   }
+
+  @override
+  String environmentBanner(String environment) {
+    return '$environment environment';
+  }
+
+  @override
+  String get environmentLocal => 'LOCAL';
+
+  @override
+  String get environmentStaging => 'STAGING';
 }

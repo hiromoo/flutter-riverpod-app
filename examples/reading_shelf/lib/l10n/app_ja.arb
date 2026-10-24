@@ -75,4 +75,9 @@
   "edit": "編集",
   "ratingStars": "5 つ星中 {rating} つ星",
   "@ratingStars": { "placeholders": { "rating": { "type": "int" } } }
+,
+  "environmentBanner": "{environment} 環境",
+  "@environmentBanner": { "description": "Current non-production app environment.", "placeholders": { "environment": { "type": "String" } } },
+  "environmentLocal": "LOCAL",
+  "environmentStaging": "STAGING"
 }

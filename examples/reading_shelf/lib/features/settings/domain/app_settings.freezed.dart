@@ -26,16 +26,21 @@ $AppSettingsCopyWith<AppSettings> get copyWith => _$AppSettingsCopyWithImpl<AppS
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppSettings&&(identical(other.locale, locale) || other.locale == locale)&&(identical(other.theme, theme) || other.theme == theme));
+  final _this = this as AppSettings;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppSettings&&(identical(other.locale, _this.locale) || other.locale == _this.locale)&&(identical(other.theme, _this.theme) || other.theme == _this.theme));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,locale,theme);
+int get hashCode {
+  final _this = this as AppSettings;
+  return Object.hash(runtimeType,_this.locale,_this.theme);
+}
 
 @override
 String toString() {
-  return 'AppSettings(locale: $locale, theme: $theme)';
+  final _this = this as AppSettings;
+  return 'AppSettings(locale: ${_this.locale}, theme: ${_this.theme})';
 }
 
 
@@ -224,16 +229,18 @@ _$AppSettingsCopyWith<_AppSettings> get copyWith => __$AppSettingsCopyWithImpl<_
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppSettings&&(identical(other.locale, locale) || other.locale == locale)&&(identical(other.theme, theme) || other.theme == theme));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppSettings&&(identical(other.locale, locale) || other.locale == locale)&&(identical(other.theme, theme) || other.theme == theme));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,locale,theme);
+int get hashCode {
+    return Object.hash(runtimeType,locale,theme);
+}
 
 @override
 String toString() {
-  return 'AppSettings(locale: $locale, theme: $theme)';
+    return 'AppSettings(locale: $locale, theme: $theme)';
 }
 
 
