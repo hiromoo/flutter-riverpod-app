@@ -26,7 +26,7 @@ void main() {
       expect(find.text('Title a'), findsOneWidget);
       expect(shows(tester, 'LOCAL'), environment == 'local');
       expect(shows(tester, 'STAGING'), environment == 'staging');
-    });
+    }, skip: environment.isEmpty); // Indicator checks need --dart-define-from-file=config/<environment>.json.
   }
   test('native flavors are declared', () {
     final gradle = files('android/app', (p) => p.endsWith('.gradle') || p.endsWith('.gradle.kts'))
