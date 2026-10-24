@@ -57,11 +57,11 @@ Three-run totals by case:
 - **Two environment assertions failed in every skill-assisted run.**
   - `selection`: every run fell back to `local` when `APP_ENV` was missing,
     and resolved the configuration inside `EvalApp` instead of before
-    `runApp`. The rubric is stricter than its sources here. The reference
-    rejects unknown and empty required values and forbids inferring
-    production, but does not require rejecting a missing `APP_ENV`. The host
-    interface requires `EvalApp` to reflect the environment by itself, which
-    pushes resolution into the widget. Read this result with that in mind.
+    `runApp`. The Reading Shelf example rejects a missing `APP_ENV` and
+    resolves the config in `main()` before `runApp`, but the reference text
+    did not say so. The host interface, which requires `EvalApp` to reflect
+    the environment by itself, also makes resolving inside the widget
+    tempting.
   - `validation_docs`: tests covered parsing, invalid values and flavor
     mismatch, but the documentation lacked a complete set of per-environment
     build commands (native builds, or some web run/build combinations).
@@ -77,12 +77,16 @@ Three-run totals by case:
 ## Improvement candidates
 
 - State in the reference that `String.fromEnvironment` must be read in a
-  `const` context, and add a test that fails when it is not.
+  `const` context.
+- State that a missing `APP_ENV` is an error resolved in `main()` before
+  `runApp`, as the example already does, and that tests inject a resolved
+  config.
 - Ask for a single table of per-environment run and build commands for web,
   Android and iOS.
-- For the next series, make the `selection` assertion match the reference
-  (missing `APP_ENV` either rejected or explicitly documented as `local`), or
-  extend the reference first. Do not change it within this series.
+- Repeat in the banner guidance that its strings go through `context.l`.
+
+These are applied in [iteration 2](v2-iteration-2.md); the rubric and fixtures
+stay unchanged within the series.
 
 ## Harness corrections
 

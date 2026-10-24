@@ -98,6 +98,16 @@ fvm flutter run -d chrome --web-port 3000 --dart-define-from-file=config/staging
 
 productionでは `staging` を `production` に置き換えます。Webには `--flavor` を渡しません。JSONを用意してもバックエンドの作成・起動・デプロイは行われません。
 
+環境とプラットフォームごとのコマンドです。`<env>` は `local`、`staging`、`production` のいずれかで、`D` は `--dart-define-from-file=config/<env>.json` を表します。
+
+| プラットフォーム | 実行 | ビルド |
+|---|---|---|
+| Web | `fvm flutter run -d chrome --web-port 3000 D` | `fvm flutter build web D` |
+| Android | `fvm flutter run --flavor <env> D` | `fvm flutter build apk --flavor <env> D` |
+| iOS | `fvm flutter run --flavor <env> D` | `fvm flutter build ios --flavor <env> D` |
+
+`--dart-define-from-file` の値はコンパイル時に埋め込まれるため、変更後はホットリロードではなく完全な再起動または再ビルドが必要です。
+
 flavor定義変更後にネイティブflavorを再生成する場合:
 
 ```sh
