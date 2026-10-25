@@ -75,7 +75,7 @@
         {
           "id": "freezed",
           "category": "convention",
-          "text": "Hand-authored domain records use Freezed; generated DTOs remain generator owned."
+          "text": "Hand-authored domain records added by the solution use Freezed; the existing public ReadingRecord, whose signature the task preserves, may stay unchanged; generated DTOs remain generator owned."
         },
         {
           "id": "regeneration",

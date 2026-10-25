@@ -53,7 +53,7 @@ The grader receives a neutral directory with the output, fixed rubric and compil
 
 ## Results and interpretation
 
-Series 2 starts with the environment case and the `scope` assertions on the feature and API cases. Its results (`eval-results/v2-*`, `benchmarks/v2-*.md`) are not comparable with iterations 1–9, which used three cases, a different rubric and Flutter 3.47.5. Series 3 (`eval-results/v3-*`, `benchmarks/v3-*.md`) adds the native flavor builds and lets `EvalApp` take optional named parameters, so it is not comparable with series 2 for the environment case. Codex usage limits are treated as resumable: a solver, grader or preflight call that failed only because of the limit is archived as a numbered attempt and rerun by the same `run` command.
+Series 2 starts with the environment case and the `scope` assertions on the feature and API cases. Its results (`eval-results/v2-*`, `benchmarks/v2-*.md`) are not comparable with iterations 1–9, which used three cases, a different rubric and Flutter 3.47.5. Series 3 (`eval-results/v3-*`, `benchmarks/v3-*.md`) adds the native flavor builds and lets `EvalApp` take optional named parameters, so it is not comparable with series 2 for the environment case. After `v3-run1`, the API `freezed` assertion was relaxed so that the preserved `ReadingRecord` may stay a plain class, matching the skill's rule that task instructions take precedence for existing public types. API convention scores from `v3-run1` used the stricter wording. Codex usage limits are treated as resumable: a solver, grader or preflight call that failed only because of the limit is archived as a numbered attempt and rerun by the same `run` command.
 
 Local raw artifacts live under `eval-results/iteration-N/` (gitignored):
 
