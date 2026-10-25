@@ -74,4 +74,4 @@ jobs:
           flutter build web --release --dart-define-from-file=config/ci.json
           flutter build appbundle --release --flavor staging \
             --dart-define-from-file=config/ci.json \
-            --build-number=$((RUN_NUMBER * 10 + RUN_ATTEMPT))
+            --build-number=$((RUN_NUMBER * 100 + RUN_ATTEMPT))

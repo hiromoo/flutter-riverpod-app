@@ -87,3 +87,42 @@ remaining difference is `package_validation`: without the skill, the
 generated package failed `dart analyze` on unused-import warnings. To measure
 Freezed adoption again, a case needs to make the solver add a new domain
 model.
+
+## CI/CD case
+
+Commit `49c3ad1` added the `ci` case: an app that already has the three
+flavors gets GitHub Actions verification and delivery under `TASK_CI.md`.
+It was run once on 2026-10-25 (`v3-ci-run1`, CI/CD only) with the skill at
+the same commit, which includes `references/ci-and-delivery.md`.
+
+| Condition | Functional | Conventions | Mechanical | Solver time | Solver tokens |
+|---|---:|---:|---:|---:|---:|
+| Without skill | 2/6 | 0/3 | 30/30 | 165.2 s | 0.86 M |
+| With skill | 2/6 | 3/3 | 30/30 | 346.5 s | 0.87 M |
+
+Both outputs passed every mechanical check: the static CI contract,
+`actionlint`, release web and staging App Bundle builds without signing
+secrets, tests, and the unchanged-file checks. Both passed `secrets` and
+`scope`. With the skill, all three conventions passed (shared `.fvmrc`
+setup, reusable per-environment delivery, hardening); without it, none did.
+
+The skill-assisted functional misses came from the reference itself:
+
+- **`verify_gate`.** The verify template tied `build_runner` and the
+  generated-output diff to the API regeneration step. The app has no API
+  package, so the solver dropped all three, leaving analysis and tests only.
+- **`environment_mapping`.** `run_number * 10 + run_attempt` collides from
+  the tenth attempt (run 1 attempt 11 and run 2 attempt 1 both give 21).
+  GitHub allows up to 50 re-runs of a workflow run.
+- **`triggers` and `docs`.** The iOS archive had no Apple team: the
+  template relied on a team set in the Xcode project, and the docs did not
+  say how to provide one.
+
+The baseline missed the same `verify_gate` and build-number points, did not
+upload production store builds, and checked out after downloading the web
+artifact, which would delete it before the Hosting deploy.
+
+The reference now keeps generation and the diff check in every verify
+workflow, uses `run_number * 100 + run_attempt`, passes `APPLE_TEAM_ID` to
+the archive and to a copy of `ExportOptions.plist`, and asks `docs/ci.md`
+for a verification status. These changes have not been re-evaluated yet.

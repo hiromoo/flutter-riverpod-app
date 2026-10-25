@@ -91,6 +91,7 @@ jobs:
           java: 'true'
       - run: dart run build_runner build && flutter gen-l10n
       - run: flutter analyze lib test integration_test && flutter test
+      # Only when the app has a generated API package.
       - run: sh scripts/verify_api.sh
       - run: git diff --exit-code -- lib packages/api_client pubspec.lock
 ```
@@ -107,7 +108,7 @@ jobs:
     uses: ./.github/workflows/verify.yml
 ```
 
-`scripts/verify_api.sh` regenerates the API client in a clean copy without `.dart_tool` and `build`, runs the package's `pub get`, `build_runner`, `analyze`, and `test`, and compares the result with `diff -r` (see [api-client.md](api-client.md) and [testing-and-generation.md](testing-and-generation.md)). The final `git diff --exit-code` fails when committed generated code, localizations, or the lockfile are stale. Pass `secrets: inherit` to `verify.yml` only when it needs a secret, such as a private dependency token.
+`scripts/verify_api.sh` regenerates the API client in a clean copy without `.dart_tool` and `build`, runs the package's `pub get`, `build_runner`, `analyze`, and `test`, and compares the result with `diff -r` (see [api-client.md](api-client.md) and [testing-and-generation.md](testing-and-generation.md)). The final `git diff --exit-code` fails when committed generated code, localizations, or the lockfile are stale. Keep the generation step and the diff check in every app, including apps without an API package: drop only `verify_api.sh` and the package path. Analyze only directories that exist, such as `lib test` without `integration_test`. Pass `secrets: inherit` to `verify.yml` only when it needs a secret, such as a private dependency token.
 
 ## Configuration injection
 
@@ -145,6 +146,7 @@ Keep the key list equal to the app's `AppConfig` defines. Add `config/ci.json` t
 | Secret | Environment | `FIREBASE_SERVICE_ACCOUNT` | Hosting deploy service account for that environment's project |
 | Variable | Environment | `API_BASE_URL`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` | Public client values embedded in the app |
 | Variable | Environment | `FIREBASE_PROJECT_ID` | That environment's Firebase project |
+| Variable | Repository | `APPLE_TEAM_ID` | Apple Developer team ID used to sign iOS archives |
 
 Values compiled into the client are public, so they are Variables, not Secrets. Never register Supabase secret or service-role keys, or any server credential, for app builds. Create `staging` and `production` GitHub Environments and add required reviewers to `production` when the team wants a manual gate.
 
@@ -153,7 +155,7 @@ Values compiled into the client are public, so they are Variables, not Secrets. 
 - Check out with `persist-credentials: false`.
 - Declare the minimum `permissions` at workflow level. Hosting previews need `checks: write` and `pull-requests: write`; everything else needs `contents: read`.
 - Use `concurrency` per PR or ref with `cancel-in-progress: false`, so an upload is never cut off halfway.
-- Build numbers are `run_number * 10 + run_attempt`. Both stores reject a reused build number, and re-runs must upload too. Version names come from `version` in `pubspec.yaml`; bump it on the release branch.
+- Build numbers are `run_number * 100 + run_attempt`. Both stores reject a reused build number, and re-runs must upload too. GitHub allows at most 50 re-runs of a workflow run, so `run_attempt` stays below 100; a factor of 10 would collide from the tenth attempt. `run_number` counts per workflow, so deliver each store app from one workflow only. Version names come from `version` in `pubspec.yaml`; bump it on the release branch.
 - Build the release artifact and upload it in the same job. Do not pass signing material between jobs.
 
 ## Staging and production
@@ -335,7 +337,7 @@ jobs:
           echo "$ANDROID_UPLOAD_KEYSTORE_BASE64" | base64 -d > "$ANDROID_KEYSTORE_PATH"
           flutter build appbundle --release --flavor "$FLAVOR" \
             --dart-define-from-file=config/ci.json \
-            --build-number=$((RUN_NUMBER * 10 + RUN_ATTEMPT))
+            --build-number=$((RUN_NUMBER * 100 + RUN_ATTEMPT))
       - uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
@@ -356,7 +358,7 @@ Archive the flavor's scheme with `xcodebuild` and sign automatically with an App
 # scripts/ci/upload_testflight.sh: archives the FLAVOR scheme and uploads it to App Store Connect.
 set -eu
 cd "$(dirname "$0")/../.."
-: "${FLAVOR:?}" "${ASC_KEY_ID:?}" "${ASC_ISSUER_ID:?}" "${ASC_PRIVATE_KEY:?}"
+: "${FLAVOR:?}" "${APPLE_TEAM_ID:?}" "${ASC_KEY_ID:?}" "${ASC_ISSUER_ID:?}" "${ASC_PRIVATE_KEY:?}"
 
 WORK="${RUNNER_TEMP:-$(mktemp -d)}"
 KEY="$WORK/AuthKey_$ASC_KEY_ID.p8"
@@ -365,19 +367,21 @@ AUTH="-allowProvisioningUpdates -authenticationKeyPath $KEY -authenticationKeyID
 
 flutter build ios --config-only --release --flavor "$FLAVOR" \
   --dart-define-from-file=config/ci.json \
-  --build-number=$((RUN_NUMBER * 10 + RUN_ATTEMPT))
+  --build-number=$((RUN_NUMBER * 100 + RUN_ATTEMPT))
 
 # shellcheck disable=SC2086
 xcodebuild -workspace ios/Runner.xcworkspace -scheme "$FLAVOR" \
   -configuration "Release-$FLAVOR" -destination 'generic/platform=iOS' \
-  -archivePath "$WORK/Runner.xcarchive" $AUTH archive
+  -archivePath "$WORK/Runner.xcarchive" $AUTH DEVELOPMENT_TEAM="$APPLE_TEAM_ID" archive
 
+cp ios/ExportOptions.plist "$WORK/ExportOptions.plist"
+/usr/libexec/PlistBuddy -c "Set :teamID $APPLE_TEAM_ID" "$WORK/ExportOptions.plist"
 # shellcheck disable=SC2086
 xcodebuild -exportArchive -archivePath "$WORK/Runner.xcarchive" \
-  -exportOptionsPlist ios/ExportOptions.plist -exportPath "$WORK/export" $AUTH
+  -exportOptionsPlist "$WORK/ExportOptions.plist" -exportPath "$WORK/export" $AUTH
 ```
 
-`ios/ExportOptions.plist` sets `method` to `app-store-connect`, `destination` to `upload`, `signingStyle` to `automatic`, the project's `teamID`, and `manageAppVersionAndBuildNumber` to `false` so the CI build number is kept.
+`ios/ExportOptions.plist` sets `method` to `app-store-connect`, `destination` to `upload`, `signingStyle` to `automatic`, and `manageAppVersionAndBuildNumber` to `false` so the CI build number is kept. Leave its `teamID` empty: automatic signing needs the Apple Developer team for both the archive and the export, and the script passes `APPLE_TEAM_ID` to `DEVELOPMENT_TEAM` and to a copy of the plist, so the Xcode project does not need a team.
 
 ```yaml
 # .github/workflows/deploy-ios.yml
@@ -408,6 +412,7 @@ jobs:
       - name: Build, sign and upload
         env:
           FLAVOR: ${{ inputs.environment }}
+          APPLE_TEAM_ID: ${{ vars.APPLE_TEAM_ID }}
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
           ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
@@ -416,7 +421,7 @@ jobs:
         run: sh scripts/ci/upload_testflight.sh
 ```
 
-App Store Connect setup: register an App ID and create an app for each flavor bundle ID, and enable automatic distribution for an internal TestFlight group. After the first few builds, check that Apple Development certificates are not multiplying.
+App Store Connect setup: set `APPLE_TEAM_ID` to the team that owns the apps, register an App ID and create an app for each flavor bundle ID, and enable automatic distribution for an internal TestFlight group. After the first few builds, check that Apple Development certificates are not multiplying.
 
 Prefer GitHub Actions over Xcode Cloud for flavored apps. Xcode Cloud products belong to one target and one app, so a single `Runner` target that switches bundle IDs per flavor cannot get a product for the staging app. Splitting platforms between two CI systems duplicates configuration, tokens, and logs.
 
@@ -469,7 +474,7 @@ jobs:
 
 ## Documentation
 
-Write `docs/ci.md` and link it from the README. It contains the branch model, the trigger table, the GitHub Environment and secrets table, per-store setup (including the manual first Play upload and API key roles), the release steps, and local equivalents of the CI builds:
+Write `docs/ci.md` and link it from the README. It contains the branch model, the trigger table, the GitHub Environment and secrets table, per-store setup (including the manual first Play upload, API key roles, and the Apple team), the release steps, local equivalents of the CI builds, and a verification status that separates what was run locally from what stays unverified until the workflows run (signing, store uploads, Hosting deploys):
 
 1. Branch `release/x.y.z` from `develop`, bump `version`, push.
 2. Open a PR to `main`; store builds upload. Pushing fixes to the release branch uploads again.

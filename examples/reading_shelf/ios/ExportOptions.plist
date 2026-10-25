@@ -8,7 +8,7 @@
 	<string>upload</string>
 	<key>signingStyle</key>
 	<string>automatic</string>
-	<!-- Set your Apple Developer team ID before archiving. -->
+	<!-- Left empty: the upload script sets it from APPLE_TEAM_ID. -->
 	<key>teamID</key>
 	<string></string>
 	<key>manageAppVersionAndBuildNumber</key>

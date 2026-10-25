@@ -166,7 +166,7 @@ fvm flutter build ios --simulator --no-codesign --flavor local --dart-define-fro
 
 - `scripts/ci/write_config.sh`: GitHub Environmentの変数から `config/ci.json` を生成します。必須値が空なら失敗します。`config/ci.json` はGit管理外です。
 - `android/app/build.gradle.kts`: `ANDROID_KEYSTORE_PATH` などがあればupload鍵で署名し、なければdebug鍵で署名します。
-- `ios/ExportOptions.plist`: App Store Connectへのアップロード設定です。使う前に `teamID` を設定してください。
+- `ios/ExportOptions.plist`: App Store Connectへのアップロード設定です。`teamID` は空のままにします。アップロード用スクリプトが `APPLE_TEAM_ID` 変数から設定します。
 
 ```sh
 cd examples/reading_shelf
