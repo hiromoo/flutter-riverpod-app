@@ -1,6 +1,6 @@
 # Skill evaluation
 
-This benchmark measures how `flutter-riverpod-skill` changes **GPT-6 Luna's implementation output** on five existing-app tasks. It does not measure skill discovery, new-project setup, other solver models, or superiority over other skill repositories.
+This benchmark measures how `flutter-riverpod-app` changes **GPT-6 Luna's implementation output** on five existing-app tasks. It does not measure skill discovery, new-project setup, other solver models, or superiority over other skill repositories.
 
 ## Fixed profile
 

@@ -1,6 +1,6 @@
 ---
-name: flutter-riverpod-skill
-description: Build and evolve Flutter applications with Riverpod, Freezed, Dio clients generated from OpenAPI, Flutter localization, consistent Material theming, and type-safe go_router navigation. Use for new apps, feature work, and incremental architecture refactors.
+name: flutter-riverpod-app
+description: Build and evolve Flutter applications end to end with Riverpod, Freezed, Dio clients generated from OpenAPI, Flutter localization, consistent Material theming, and type-safe go_router navigation, plus FVM-pinned SDKs, local/staging/production environments with flavors and Firebase or Supabase setup, and GitHub Actions CI with store and Hosting delivery. Use for new apps, feature work, environment or CI/CD setup, and incremental architecture refactors.
 ---
 
 # Riverpod Flutter Application Engineering

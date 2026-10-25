@@ -1,6 +1,6 @@
-# Flutter Riverpod Skill
+# Flutter Riverpod App
 
-Riverpod を使った Flutter アプリの設計・開発を支援する、Codex と Claude Code 向けの Agent Skill です。新規アプリの作成、機能追加、既存アプリの段階的なリファクタリングに利用できます。
+Riverpod を使った Flutter アプリの設計・開発・配信を支援する、Codex と Claude Code 向けの Agent Skill です。アプリのアーキテクチャに加え、環境分離・flavor と CI/CD も扱います。新規アプリの作成、機能追加、環境や CI の構築、既存アプリの段階的なリファクタリングに利用できます。
 
 [English](README.md) | 日本語
 
@@ -12,6 +12,7 @@ Riverpod を使った Flutter アプリの設計・開発を支援する、Codex
 - 新規アプリと環境設定の作業ではlocal／staging／productionを分離し、Android・iOSは `flutter_flavorizr`、Webはビルド時設定を使います。VS Codeの起動構成も整備します。
 - OpenAPI 仕様から OpenAPI Generator の `dart-dio` ジェネレーターで API クライアントを生成します。
 - UI テーマを一元管理し、Flutter `gen_l10n` による多言語対応と型安全な `go_router` ルートを使います。
+- GitHub Actions ですべての変更を検証し、GitHub Environments を通じて環境ごとにストアと Firebase Hosting へ配信します。
 - 作業に合う場合は Flutter の追加 Agent Skill を参照します。その内容はこのリポジトリに複製しません。
 
 ## 利用方法
@@ -20,31 +21,31 @@ Skill の説明は [SKILL.md](SKILL.md)、目的別の詳しいガイドは [`re
 
 ### Codex
 
-ディレクトリ名を `flutter-riverpod-skill` のまま、Codex の skills ディレクトリにクローンしてください。
+ディレクトリ名を `flutter-riverpod-app` のまま、Codex の skills ディレクトリにクローンしてください。
 
 ```sh
 # すべてのプロジェクトで利用する場合
-git clone https://github.com/hiromoo/flutter-riverpod-skill.git ~/.agents/skills/flutter-riverpod-skill
+git clone https://github.com/hiromoo/flutter-riverpod-app.git ~/.agents/skills/flutter-riverpod-app
 
 # 特定のリポジトリだけで利用する場合（リポジトリのルートで実行）
-git clone https://github.com/hiromoo/flutter-riverpod-skill.git .agents/skills/flutter-riverpod-skill
+git clone https://github.com/hiromoo/flutter-riverpod-app.git .agents/skills/flutter-riverpod-app
 ```
 
-既存のクローンがある場合は、`ln -s "$PWD" ~/.agents/skills/flutter-riverpod-skill` のようにシンボリックリンクを作成しても構いません。Skill が表示されない場合は Codex を再起動してください。該当する Flutter タスクでは Codex が自動的に Skill を使用します。`$flutter-riverpod-skill` と記述するか、`/skills` から選択して明示的に呼び出すこともできます。
+既存のクローンがある場合は、`ln -s "$PWD" ~/.agents/skills/flutter-riverpod-app` のようにシンボリックリンクを作成しても構いません。Skill が表示されない場合は Codex を再起動してください。該当する Flutter タスクでは Codex が自動的に Skill を使用します。`$flutter-riverpod-app` と記述するか、`/skills` から選択して明示的に呼び出すこともできます。
 
 ### Claude Code
 
-ディレクトリ名を `flutter-riverpod-skill` のまま、Claude Code の skills ディレクトリにクローンしてください。
+ディレクトリ名を `flutter-riverpod-app` のまま、Claude Code の skills ディレクトリにクローンしてください。
 
 ```sh
 # すべてのプロジェクトで利用する場合
-git clone https://github.com/hiromoo/flutter-riverpod-skill.git ~/.claude/skills/flutter-riverpod-skill
+git clone https://github.com/hiromoo/flutter-riverpod-app.git ~/.claude/skills/flutter-riverpod-app
 
 # 特定のプロジェクトだけで利用する場合（プロジェクトのルートで実行）
-git clone https://github.com/hiromoo/flutter-riverpod-skill.git .claude/skills/flutter-riverpod-skill
+git clone https://github.com/hiromoo/flutter-riverpod-app.git .claude/skills/flutter-riverpod-app
 ```
 
-既存のクローンがある場合は、`ln -s "$PWD" ~/.claude/skills/flutter-riverpod-skill` のようにシンボリックリンクを作成しても構いません。該当する Flutter タスクでは Claude Code が自動的に Skill を読み込みます。`/flutter-riverpod-skill` で明示的に呼び出すこともできます。
+既存のクローンがある場合は、`ln -s "$PWD" ~/.claude/skills/flutter-riverpod-app` のようにシンボリックリンクを作成しても構いません。該当する Flutter タスクでは Claude Code が自動的に Skill を読み込みます。`/flutter-riverpod-app` で明示的に呼び出すこともできます。
 
 ## サンプルアプリ
 
