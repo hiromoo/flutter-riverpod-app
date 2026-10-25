@@ -67,3 +67,23 @@ cases are unchanged.
 - Repeat this series before drawing conclusions from one run.
 - Investigate the recurring Freezed miss for pre-existing plain classes in
   the API case.
+
+## API rerun after the Freezed policy change
+
+Commit `ad2cc1b` changed the skill so that task instructions win for
+existing public types: `ReadingRecord`, whose signature the task preserves,
+stays a plain class, and only new hand-written models must use Freezed. The
+API `freezed` assertion was relaxed to match. The API case was then run once
+more (`v3-run2`, API only).
+
+| Condition | Functional | Conventions | Mechanical |
+|---|---:|---:|---:|
+| Without skill | 4/5 | 2/2 | 13/14 |
+| With skill | 5/5 | 2/2 | 14/14 |
+
+Both conditions kept `ReadingRecord` unchanged and added no new hand-written
+model, so `freezed` passed in both and no longer separates them. The
+remaining difference is `package_validation`: without the skill, the
+generated package failed `dart analyze` on unused-import warnings. To measure
+Freezed adoption again, a case needs to make the solver add a new domain
+model.
