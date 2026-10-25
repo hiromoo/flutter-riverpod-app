@@ -1,0 +1,30 @@
+flavors:
+  local:
+    app:
+      name: "Skill Eval Local"
+    android:
+      applicationId: "com.example.skill_eval_app.local"
+    ios:
+      bundleId: "com.example.skillEvalApp.local"
+  staging:
+    app:
+      name: "Skill Eval Staging"
+    android:
+      applicationId: "com.example.skill_eval_app.staging"
+    ios:
+      bundleId: "com.example.skillEvalApp.staging"
+  production:
+    app:
+      name: "Skill Eval App"
+    android:
+      applicationId: "com.example.skill_eval_app"
+    ios:
+      bundleId: "com.example.skillEvalApp"
+instructions:
+    - android:androidManifest
+    - android:buildGradle
+    - android:flavorizrGradle
+    - ios:xcconfig
+    - ios:buildTargets
+    - ios:schema
+    - ios:plist

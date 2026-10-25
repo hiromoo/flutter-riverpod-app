@@ -69,6 +69,7 @@ references/
   ui-localization-and-navigation.md
   testing-and-generation.md
   environments-and-flavors.md
+  ci-and-delivery.md
 ```
 
 ## ライセンス

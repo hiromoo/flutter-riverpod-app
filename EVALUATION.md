@@ -1,6 +1,6 @@
 # Skill evaluation
 
-This benchmark measures how `flutter-riverpod-skill` changes **GPT-6 Luna's implementation output** on four existing-app tasks. It does not measure skill discovery, new-project setup, other solver models, or superiority over other skill repositories.
+This benchmark measures how `flutter-riverpod-skill` changes **GPT-6 Luna's implementation output** on five existing-app tasks. It does not measure skill discovery, new-project setup, other solver models, or superiority over other skill repositories.
 
 ## Fixed profile
 
@@ -9,7 +9,7 @@ This benchmark measures how `flutter-riverpod-skill` changes **GPT-6 Luna's impl
 | Solver, both conditions | `gpt-6-luna` | `medium` |
 | Rubric grader | `gpt-6-astra` | `high` |
 
-Four cases (feature, OpenAPI integration, incremental refactor, environment flavors), with and without the skill: eight solver runs and eight grading runs per repetition. Availability/isolation preflights are additional short calls. Run each role sequentially, with a 30-minute deadline per solver/grader call. Timeouts and failures are retained. A single run per condition is exploratory evidence, not a statistical reliability claim.
+Five cases (feature, OpenAPI integration, incremental refactor, environment flavors, CI/CD), with and without the skill: ten solver runs and ten grading runs per repetition. Availability/isolation preflights are additional short calls. Run each role sequentially, with a 30-minute deadline per solver/grader call. Timeouts and failures are retained. A single run per condition is exploratory evidence, not a statistical reliability claim.
 
 The case prompts, expected outputs, and rubric are in [`evals/evals.json`](evals/evals.json). The independent contract tests are in `evals/checks/`. These are frozen before execution. Functional criteria and skill-convention criteria are reported separately; convention compliance cannot compensate for broken behavior.
 
@@ -20,6 +20,7 @@ The case prompts, expected outputs, and rubric are in [`evals/evals.json`](evals
 - Cached fixture dependencies (`flutter pub get --offline --enforce-lockfile` is run before each task).
 - Java 17+, Node/npm and access to OpenAPI Generator **7.25.0** for the API task. Generator wrapper/version is supplied in the fixture.
 - Ruby with the `xcodeproj` gem for the environment task, which `flutter_flavorizr` uses to create iOS schemes. From series 3, verification also builds a debug APK and an iOS simulator app for every flavor, so it needs the Android SDK, Java and Xcode on the verifying machine. Without them, those checks fail and the run is not comparable.
+- For the CI/CD task, `actionlint` on `PATH`, or `uv` so the verifier can run the pinned `actionlint-py` build through `uvx`. The task's verification also builds a release web bundle and a staging App Bundle, so it needs the Android SDK and Java.
 - Permission for the CLI to contact the model service and for Flutter/Dart to write SDK/package caches. Run from an ordinary terminal if an enclosing sandbox prevents this; the child agents still use their own workspace-write/read-only sandboxes. No sandbox-bypass flag is used.
 
 ```sh
@@ -28,16 +29,21 @@ python3 scripts/run_evals.py validate
 python3 scripts/run_evals.py dry-run
 python3 -m unittest discover -s evals/tests -v
 
-# Explicit model calls: eight implementations, verification, then grading per run:
+# Routine run: every case except api, verification, then grading per run.
+python3 scripts/run_evals.py run --case feature --case refactor --case environment --case ci
+
+# All ten implementations, including api:
 python3 scripts/run_evals.py run
 
-# A case can be selected. Completed and ordinary failed records are not overwritten.
+# Repeat --case to select cases. Completed and ordinary failed records are not overwritten.
 # Usage-limit failures alone are archived as numbered attempts and resumed:
 python3 scripts/run_evals.py run --case api
 
 # Rebuild summaries without model calls:
 python3 scripts/run_evals.py aggregate
 ```
+
+The api case is a regression check. From series 3 both conditions score nearly full marks on it, and its `freezed` assertion no longer separates them because the task preserves `ReadingRecord`; Freezed adoption is measured by the feature case. Its independent regeneration check still guards the most revised guidance, so run it when `references/api-client.md`, the API parts of `references/testing-and-generation.md`, or the OpenAPI row of `SKILL.md` change, and leave it out of routine runs. Run totals without api are not comparable with totals that include it.
 
 Use a new `--output` directory for a fresh iteration. Changed fixtures, prompts, rubrics or tests are rejected against the original iteration manifest. Do not delete failed run records to obtain a better score. Record any harness correction and revalidation separately. The `verify` and `judge` actions complete missing verification/grading artifacts without regenerating outputs; a recorded attempt is retained rather than silently retried.
 
@@ -47,13 +53,13 @@ Each solver receives a fresh temporary project outside the source repository. Bo
 
 The runner ignores personal CLI config, disables plugins/apps/memory/delegation/hooks, disables host skill discovery and explicitly disables the installed standard skills. `project_doc_max_bytes=0` prevents inherited AGENTS.md instructions. Both model roles must report an empty initial skill catalog in preflight. Codex can re-extract its system skills when a process starts, after the runner has built its disable list. The runner therefore compares the skill set on disk before and after every Codex call and records `skill_set_changed`. A preflight whose skill set changed is kept with a `-stale` suffix and retried once. It fails if the set changes again. This is context isolation, not a filesystem confidentiality boundary: transcripts should also be reviewed for unexpected reads outside the allowed project, installed SDK/packages, and explicitly supplied skill. The authentication home is never copied or changed.
 
-Independent contract tests are withheld from the solver and installed only in a separate verification copy. Verification runs dependency resolution, generation, analysis and tests. API output is additionally checked as a standalone Dart package. The API task requires a `tool/generate_api.sh` entry point, which the verifier runs on another clean copy of the output. It then compares the regenerated `packages/reading_api` with the delivered package, ignoring `.dart_tool`, `build` and `pubspec.lock`. The results are recorded as `api_regeneration` and `api_regeneration_diff` in `verification.json` and `checks/`. A missing entry point, a failed run or any difference is a mechanical failure. The environment task runs its contract test and `flutter build web` with each `config/<environment>.json`, without `--flavor`, and from series 3 also `flutter build apk --debug` and `flutter build ios --simulator --no-codesign` with the matching `--flavor`. The regeneration check was added after iteration 3. Earlier iterations had no independent regeneration evidence, so their regeneration assertion is not comparable with later ones. The verifier does not repair implementation errors. It preserves source artifacts, so regenerated validation output cannot replace the original result.
+Independent contract tests are withheld from the solver and installed only in a separate verification copy. Verification runs dependency resolution, generation, analysis and tests. API output is additionally checked as a standalone Dart package. The API task requires a `tool/generate_api.sh` entry point, which the verifier runs on another clean copy of the output. It then compares the regenerated `packages/reading_api` with the delivered package, ignoring `.dart_tool`, `build` and `pubspec.lock`. The results are recorded as `api_regeneration` and `api_regeneration_diff` in `verification.json` and `checks/`. A missing entry point, a failed run or any difference is a mechanical failure. The environment task runs its contract test and `flutter build web` with each `config/<environment>.json`, without `--flavor`, and from series 3 also `flutter build apk --debug` and `flutter build ios --simulator --no-codesign` with the matching `--flavor`. The CI/CD task starts from a project that already has the three environments and flavors, and asks for GitHub Actions delivery. It is verified by `evals/checks/ci_contract.py` (workflow files exist, web builds omit `--flavor`, native builds pass one that matches their config file, and no credential file or key material is committed), by `actionlint` over `.github/workflows`, and by a release web build and a staging App Bundle built without any signing secret. Every file under `lib/` and `test/`, and the existing files under `config/` and `flavorizr.yaml`, must be unchanged. No workflow is run and nothing is delivered, so delivery itself is graded only from the workflow source and documentation. The regeneration check was added after iteration 3. Earlier iterations had no independent regeneration evidence, so their regeneration assertion is not comparable with later ones. The verifier does not repair implementation errors. It preserves source artifacts, so regenerated validation output cannot replace the original result.
 
 The grader receives a neutral directory with the output, fixed rubric and compiler/test evidence, but not the condition label, solver identity, or solver's completion claims. Output content can still reveal conventions; this is label masking, not guaranteed perfect blinding. The grader must cite files/lines or logs for each result. Mechanical results are independent and cannot be overridden by the grader.
 
 ## Results and interpretation
 
-Series 2 starts with the environment case and the `scope` assertions on the feature and API cases. Its results (`eval-results/v2-*`, `benchmarks/v2-*.md`) are not comparable with iterations 1–9, which used three cases, a different rubric and Flutter 3.47.5. Series 3 (`eval-results/v3-*`, `benchmarks/v3-*.md`) adds the native flavor builds and lets `EvalApp` take optional named parameters, so it is not comparable with series 2 for the environment case. After `v3-run1`, the API `freezed` assertion was relaxed so that the preserved `ReadingRecord` may stay a plain class, matching the skill's rule that task instructions take precedence for existing public types. API convention scores from `v3-run1` used the stricter wording. Codex usage limits are treated as resumable: a solver, grader or preflight call that failed only because of the limit is archived as a numbered attempt and rerun by the same `run` command.
+Series 2 starts with the environment case and the `scope` assertions on the feature and API cases. Its results (`eval-results/v2-*`, `benchmarks/v2-*.md`) are not comparable with iterations 1–9, which used three cases, a different rubric and Flutter 3.47.5. Series 3 (`eval-results/v3-*`, `benchmarks/v3-*.md`) adds the native flavor builds and lets `EvalApp` take optional named parameters, so it is not comparable with series 2 for the environment case. After `v3-run1`, the API `freezed` assertion was relaxed so that the preserved `ReadingRecord` may stay a plain class, matching the skill's rule that task instructions take precedence for existing public types. API convention scores from `v3-run1` used the stricter wording. The CI/CD case was added after `v3-run2` without changing the other four cases, so their per-case results stay comparable within series 3, but run totals that include the CI/CD case are not comparable with earlier totals. Codex usage limits are treated as resumable: a solver, grader or preflight call that failed only because of the limit is archived as a numbered attempt and rerun by the same `run` command.
 
 Local raw artifacts live under `eval-results/iteration-N/` (gitignored):
 

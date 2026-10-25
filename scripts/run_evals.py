@@ -10,18 +10,24 @@ from pathlib import Path
 import shutil
 import signal
 import subprocess
+import sys
 import tempfile
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
 CONDITIONS = ('without_skill', 'with_skill')
-CASES = ('feature', 'api', 'refactor', 'environment')
+CASES = ('feature', 'api', 'refactor', 'environment', 'ci')
 ENVIRONMENTS = ('local', 'staging', 'production')
 CONTRACT_TESTS = {'api': 'api_contract_test.dart', 'environment': 'environment_contract_test.dart'}
 IGNORED = shutil.ignore_patterns('.git', '.dart_tool', 'build', '.fvm', 'node_modules', '__pycache__')
 REGEN_SCRIPT = 'tool/generate_api.sh'
 REGEN_IGNORED = {'.dart_tool', 'build', 'pubspec.lock'}
 SKILL_SCAN_IGNORED = {'.git', '.dart_tool', 'build', '.fvm', 'node_modules', '.pub-cache'}
+# The ci case may change delivery files only; app code, tests and environment config stay fixed.
+# config/ may gain a generated CI defines file, so only its existing files are protected there.
+CI_PROTECTED_PREFIXES = ('lib/', 'test/', 'config/')
+CI_CLOSED_PREFIXES = ('lib/', 'test/')
+ACTIONLINT_PYPI = 'actionlint-py==1.7.12.25'
 
 
 def read(path):
@@ -257,6 +263,20 @@ def archive_preflight(output):
             path.rename(target/path.name)
 
 
+def workflow_lint_command():
+    """Prefer an installed actionlint; otherwise run the pinned PyPI build through uvx."""
+    if shutil.which('actionlint'):
+        return ['actionlint', '-color=false']
+    return ['uvx', '--from', ACTIONLINT_PYPI, 'actionlint', '-color=false']
+
+
+def ci_protected(before, after):
+    """Fixed paths for the ci case, including files added under lib/ and test/."""
+    names = {n for n in before if n.startswith(CI_PROTECTED_PREFIXES) or n == 'flavorizr.yaml'}
+    names |= {n for n in after if n.startswith(CI_CLOSED_PREFIXES)}
+    return sorted(names)
+
+
 def copy_project(source, target):
     shutil.copytree(source, target, ignore=IGNORED, dirs_exist_ok=True)
 
@@ -322,9 +342,10 @@ def verify(case, run, sdk, env):
         return
     work = Path(tempfile.mkdtemp(prefix='skill-verify-', dir='/tmp'))
     copy_project(run/'outputs', work)
-    test = CONTRACT_TESTS.get(case['id'], 'ui_contract_test.dart')
-    (work/'test').mkdir(exist_ok=True)
-    shutil.copy2(ROOT/'evals/checks'/test, work/'test/evaluator_contract_test.dart')
+    if case['id'] != 'ci':
+        test = CONTRACT_TESTS.get(case['id'], 'ui_contract_test.dart')
+        (work/'test').mkdir(exist_ok=True)
+        shutil.copy2(ROOT/'evals/checks'/test, work/'test/evaluator_contract_test.dart')
     checks = []
     def check(name, cmd, cwd=work):
         result = command(cmd, cwd, run/'checks'/f'{name}.log', env=env)
@@ -346,6 +367,18 @@ def verify(case, run, sdk, env):
                 check(f'web_build_{name}', [flutter, 'build', 'web', define])
                 check(f'android_build_{name}', [flutter, 'build', 'apk', '--debug', '--flavor', name, define])
                 check(f'ios_build_{name}', [flutter, 'build', 'ios', '--simulator', '--no-codesign', '--flavor', name, define])
+        elif case['id'] == 'ci':
+            check('ci_contract', [sys.executable, str(ROOT/'evals/checks/ci_contract.py'), str(work)])
+            workflows = sorted(str(p.relative_to(work)) for p in (work/'.github/workflows').glob('*.y*ml'))
+            if workflows:
+                # Explicit paths: actionlint cannot discover a project without a git repository.
+                check('workflow_lint', workflow_lint_command()+workflows)
+            else:
+                checks.append(dict(id='workflow_lint', status='failed', error='.github/workflows has no workflow files'))
+            # Release builds must keep working without signing secrets.
+            define = '--dart-define-from-file=config/staging.json'
+            check('web_build_staging', [flutter, 'build', 'web', '--release', define])
+            check('android_release_build_staging', [flutter, 'build', 'appbundle', '--release', '--flavor', 'staging', define])
         else:
             check('contract_tests', [flutter, 'test', *flags, 'test/evaluator_contract_test.dart', '--reporter', 'expanded'])
         check('all_tests', [flutter, 'test', *flags, '--reporter', 'expanded'])
@@ -363,7 +396,9 @@ def verify(case, run, sdk, env):
     protected = ['.fvmrc', 'lib/catalog_gateway.dart']
     protected += {'api': ['api/openapi.yaml'], 'refactor': ['lib/unrelated.dart'],
                   'environment': ['lib/catalog_screen.dart', 'lib/demo_gateway.dart']}.get(case['id'], [])
-    for name in protected:
+    if case['id'] == 'ci':
+        protected += ci_protected(before, after)
+    for name in dict.fromkeys(protected):
         checks.append(dict(id='preserved:'+name, status='completed' if before.get(name) == after.get(name) else 'failed'))
     save(run/'verification.json', dict(checks=checks, workspace=str(work), verifier_hashes=hashes(ROOT/'evals/checks')))
 
@@ -483,7 +518,7 @@ def main():
     parser.add_argument('action', choices=['validate', 'dry-run', 'run', 'verify', 'judge', 'aggregate'])
     parser.add_argument('--output', type=Path, default=ROOT/'eval-results/iteration-1')
     parser.add_argument('--sdk', type=Path, default=Path.home()/'fvm/versions'/read(ROOT/'evals/fixtures/common/.fvmrc')['flutter'])
-    parser.add_argument('--case', choices=CASES)
+    parser.add_argument('--case', choices=CASES, action='append', help='repeat to select several cases')
     args = parser.parse_args()
     config = read(ROOT/'evals/evals.json')
     validate(config)
@@ -528,7 +563,7 @@ def main():
     if args.action == 'run' and not all(x['status']=='completed' and x['isolated'] for x in read(output/'preflight.json').values()):
         raise SystemExit('Model availability / skill isolation preflight failed; see preflight.json')
     for case in config['evals']:
-        if args.case and case['id'] != args.case:
+        if args.case and case['id'] not in args.case:
             continue
         for condition in CONDITIONS:
             run = output/case['id']/condition

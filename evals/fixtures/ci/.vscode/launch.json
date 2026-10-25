@@ -1,0 +1,11 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    { "name": "local (Android/iOS)", "request": "launch", "type": "dart", "flutterMode": "debug", "program": "lib/main.dart", "toolArgs": ["--flavor", "local", "--dart-define-from-file=config/local.json"] },
+    { "name": "local (Web)", "request": "launch", "type": "dart", "flutterMode": "debug", "program": "lib/main.dart", "toolArgs": ["--dart-define-from-file=config/local.json"] },
+    { "name": "staging (Android/iOS)", "request": "launch", "type": "dart", "flutterMode": "debug", "program": "lib/main.dart", "toolArgs": ["--flavor", "staging", "--dart-define-from-file=config/staging.json"] },
+    { "name": "staging (Web)", "request": "launch", "type": "dart", "flutterMode": "debug", "program": "lib/main.dart", "toolArgs": ["--dart-define-from-file=config/staging.json"] },
+    { "name": "production (Android/iOS)", "request": "launch", "type": "dart", "flutterMode": "debug", "program": "lib/main.dart", "toolArgs": ["--flavor", "production", "--dart-define-from-file=config/production.json"] },
+    { "name": "production (Web)", "request": "launch", "type": "dart", "flutterMode": "debug", "program": "lib/main.dart", "toolArgs": ["--dart-define-from-file=config/production.json"] }
+  ]
+}

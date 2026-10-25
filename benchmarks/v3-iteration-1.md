@@ -87,3 +87,101 @@ remaining difference is `package_validation`: without the skill, the
 generated package failed `dart analyze` on unused-import warnings. To measure
 Freezed adoption again, a case needs to make the solver add a new domain
 model.
+
+## CI/CD case
+
+Commit `49c3ad1` added the `ci` case: an app that already has the three
+flavors gets GitHub Actions verification and delivery under `TASK_CI.md`.
+It was run once on 2026-10-25 (`v3-ci-run1`, CI/CD only) with the skill at
+the same commit, which includes `references/ci-and-delivery.md`.
+
+| Condition | Functional | Conventions | Mechanical | Solver time | Solver tokens |
+|---|---:|---:|---:|---:|---:|
+| Without skill | 2/6 | 0/3 | 30/30 | 165.2 s | 0.86 M |
+| With skill | 2/6 | 3/3 | 30/30 | 346.5 s | 0.87 M |
+
+Both outputs passed every mechanical check: the static CI contract,
+`actionlint`, release web and staging App Bundle builds without signing
+secrets, tests, and the unchanged-file checks. Both passed `secrets` and
+`scope`. With the skill, all three conventions passed (shared `.fvmrc`
+setup, reusable per-environment delivery, hardening); without it, none did.
+
+The skill-assisted functional misses came from the reference itself:
+
+- **`verify_gate`.** The verify template tied `build_runner` and the
+  generated-output diff to the API regeneration step. The app has no API
+  package, so the solver dropped all three, leaving analysis and tests only.
+- **`environment_mapping`.** `run_number * 10 + run_attempt` collides from
+  the tenth attempt (run 1 attempt 11 and run 2 attempt 1 both give 21).
+  GitHub allows up to 50 re-runs of a workflow run.
+- **`triggers` and `docs`.** The iOS archive had no Apple team: the
+  template relied on a team set in the Xcode project, and the docs did not
+  say how to provide one.
+
+The baseline missed the same `verify_gate` and build-number points, did not
+upload production store builds, and checked out after downloading the web
+artifact, which would delete it before the Hosting deploy.
+
+The reference now keeps generation and the diff check in every verify
+workflow, uses `run_number * 100 + run_attempt`, passes `APPLE_TEAM_ID` to
+the archive and to a copy of `ExportOptions.plist`, and asks `docs/ci.md`
+for a verification status (commit `7b7e27d`).
+
+### Rerun after the reference fixes
+
+The `ci` case was run once more with the skill at `7b7e27d`
+(`v3-ci-run2`).
+
+| Condition | Functional | Conventions | Mechanical | Solver time | Solver tokens |
+|---|---:|---:|---:|---:|---:|
+| Without skill | 2/6 | 0/3 | 30/30 | 158.0 s | 0.67 M |
+| With skill | 6/6 | 2/3 | 30/30 | 196.8 s | 0.75 M |
+
+With the skill, all four earlier functional misses passed: the verify
+workflow regenerates code and fails on a generated-output diff, build
+numbers use `run_number * 100 + run_attempt`, iOS signing takes
+`APPLE_TEAM_ID`, and `docs/ci.md` states that signing, store uploads and
+Hosting deploys are unverified.
+
+The remaining miss was `hardening`, again from the reference: the staging
+and production templates granted `checks: write` and `pull-requests: write`
+at workflow level, so the verify, Android and iOS jobs inherited them. The
+reference now keeps `contents: read` at workflow level and grants the write
+permissions only on the job that calls the Hosting deploy (commit
+`e16aab3`).
+
+The baseline again missed the same four functional points and all three
+conventions; it also wrote the upload keystore to a path that the Gradle
+signing config resolves differently.
+
+### Rerun after the permissions fix
+
+The `ci` case was run a third time with the skill at `e16aab3`
+(`v3-ci-run3`).
+
+| Condition | Functional | Conventions | Mechanical | Solver time | Solver tokens |
+|---|---:|---:|---:|---:|---:|
+| Without skill | 2/6 | 0/3 | 30/30 | 317.0 s | 1.61 M |
+| With skill | 5/6 | 3/3 | 30/30 | 181.6 s | 0.70 M |
+
+`hardening` passed with the skill, so all three conventions passed again.
+
+The one functional miss, `triggers`, appears to be a grading error. The
+grader said the iOS upload cannot work because the flavor schemes in the
+fixture have an empty `BuildAction`, so archiving them would build nothing.
+The schemes are as `flutter_flavorizr` 2.6.0 generated them, and the
+Reading Shelf sample has the same empty `BuildAction`. An unsigned archive
+of the fixture's `staging` scheme succeeded locally (`flutter build ios
+--config-only --release --flavor staging`, then `xcodebuild -scheme staging
+-configuration Release-staging archive CODE_SIGNING_ALLOWED=NO`) and
+produced `Runner.app`. The score is kept as graded; this evidence is
+recorded beside it, not used to override it. Signed export was not tested.
+
+The baseline missed the same four functional points as in the earlier runs
+and all three conventions.
+
+Across the three `ci` runs, the skill-assisted functional misses that came
+from the reference were fixed one by one (verify steps, build numbers, iOS
+team, documentation status, then job permissions). Each run is a single
+exploratory run.
+
