@@ -26,16 +26,21 @@ $AppFailureCopyWith<AppFailure> get copyWith => _$AppFailureCopyWithImpl<AppFail
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppFailure&&(identical(other.kind, kind) || other.kind == kind));
+  final _this = this as AppFailure;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppFailure&&(identical(other.kind, _this.kind) || other.kind == _this.kind));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,kind);
+int get hashCode {
+  final _this = this as AppFailure;
+  return Object.hash(runtimeType,_this.kind);
+}
 
 @override
 String toString() {
-  return 'AppFailure(kind: $kind)';
+  final _this = this as AppFailure;
+  return 'AppFailure(kind: ${_this.kind})';
 }
 
 
@@ -222,16 +227,18 @@ _$AppFailureCopyWith<_AppFailure> get copyWith => __$AppFailureCopyWithImpl<_App
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppFailure&&(identical(other.kind, kind) || other.kind == kind));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppFailure&&(identical(other.kind, kind) || other.kind == kind));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,kind);
+int get hashCode {
+    return Object.hash(runtimeType,kind);
+}
 
 @override
 String toString() {
-  return 'AppFailure(kind: $kind)';
+    return 'AppFailure(kind: $kind)';
 }
 
 

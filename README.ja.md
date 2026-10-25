@@ -9,6 +9,7 @@ Riverpod を使った Flutter アプリの設計・開発を支援する、Codex
 - Flutter 公式の [Architecture Best Practices Skill](https://github.com/flutter/agent-plugins/blob/main/skills/flutter-apply-architecture-best-practices/SKILL.md) をアーキテクチャの基準とし、Riverpod 向けのガイダンスを加えます。
 - 機能単位でコードを構成し、Riverpod の `Notifier` / `AsyncNotifier`、Freezed、`flutter_hooks` を使います。
 - 新規 Flutter プロジェクトでは、検証済みの Flutter SDK を FVM と `.fvmrc` で固定します。
+- 新規アプリと環境設定の作業ではlocal／staging／productionを分離し、Android・iOSは `flutter_flavorizr`、Webはビルド時設定を使います。VS Codeの起動構成も整備します。
 - OpenAPI 仕様から OpenAPI Generator の `dart-dio` ジェネレーターで API クライアントを生成します。
 - UI テーマを一元管理し、Flutter `gen_l10n` による多言語対応と型安全な `go_router` ルートを使います。
 - 作業に合う場合は Flutter の追加 Agent Skill を参照します。その内容はこのリポジトリに複製しません。
@@ -47,7 +48,7 @@ git clone https://github.com/hiromoo/flutter-riverpod-skill.git .claude/skills/f
 
 ## サンプルアプリ
 
-[Reading Shelf](examples/reading_shelf/README.md) は Shelf API を備えた Flutter Web アプリです。推奨する構成、コード生成、テスト方針を確認できます。外部 API キーなしで起動できます。
+[Reading Shelf](examples/reading_shelf/README.md) は Shelf API を備えたAndroid・iOS・Web向けの読書記録アプリです。3環境の設定、Firebase CLI／FlutterFire CLIを使ったFirebase設定とSupabaseの初期化、左上の環境バナー、VS Codeからの起動を確認できます。localではSupabase CLIの公開キーとFirebase Emulator用の設定を使います。staging／productionでは各環境のクラウド設定と稼働中のShelf APIが必要です。
 
 ## 参考資料
 
@@ -67,6 +68,7 @@ references/
   api-client.md
   ui-localization-and-navigation.md
   testing-and-generation.md
+  environments-and-flavors.md
 ```
 
 ## ライセンス

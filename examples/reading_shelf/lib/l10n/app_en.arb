@@ -75,4 +75,9 @@
   "edit": "Edit",
   "ratingStars": "{rating} out of 5 stars",
   "@ratingStars": { "placeholders": { "rating": { "type": "int" } } }
+,
+  "environmentBanner": "{environment} environment",
+  "@environmentBanner": { "description": "Current non-production app environment.", "placeholders": { "environment": { "type": "String" } } },
+  "environmentLocal": "LOCAL",
+  "environmentStaging": "STAGING"
 }

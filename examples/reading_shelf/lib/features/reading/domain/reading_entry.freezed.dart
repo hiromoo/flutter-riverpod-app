@@ -26,16 +26,21 @@ $ReadingEntryCopyWith<ReadingEntry> get copyWith => _$ReadingEntryCopyWithImpl<R
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ReadingEntry&&(identical(other.bookId, bookId) || other.bookId == bookId)&&(identical(other.status, status) || other.status == status)&&(identical(other.pagesRead, pagesRead) || other.pagesRead == pagesRead)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.note, note) || other.note == note)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  final _this = this as ReadingEntry;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ReadingEntry&&(identical(other.bookId, _this.bookId) || other.bookId == _this.bookId)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.pagesRead, _this.pagesRead) || other.pagesRead == _this.pagesRead)&&(identical(other.rating, _this.rating) || other.rating == _this.rating)&&(identical(other.note, _this.note) || other.note == _this.note)&&(identical(other.updatedAt, _this.updatedAt) || other.updatedAt == _this.updatedAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,bookId,status,pagesRead,rating,note,updatedAt);
+int get hashCode {
+  final _this = this as ReadingEntry;
+  return Object.hash(runtimeType,_this.bookId,_this.status,_this.pagesRead,_this.rating,_this.note,_this.updatedAt);
+}
 
 @override
 String toString() {
-  return 'ReadingEntry(bookId: $bookId, status: $status, pagesRead: $pagesRead, rating: $rating, note: $note, updatedAt: $updatedAt)';
+  final _this = this as ReadingEntry;
+  return 'ReadingEntry(bookId: ${_this.bookId}, status: ${_this.status}, pagesRead: ${_this.pagesRead}, rating: ${_this.rating}, note: ${_this.note}, updatedAt: ${_this.updatedAt})';
 }
 
 
@@ -232,16 +237,18 @@ _$ReadingEntryCopyWith<_ReadingEntry> get copyWith => __$ReadingEntryCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ReadingEntry&&(identical(other.bookId, bookId) || other.bookId == bookId)&&(identical(other.status, status) || other.status == status)&&(identical(other.pagesRead, pagesRead) || other.pagesRead == pagesRead)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.note, note) || other.note == note)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ReadingEntry&&(identical(other.bookId, bookId) || other.bookId == bookId)&&(identical(other.status, status) || other.status == status)&&(identical(other.pagesRead, pagesRead) || other.pagesRead == pagesRead)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.note, note) || other.note == note)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,bookId,status,pagesRead,rating,note,updatedAt);
+int get hashCode {
+    return Object.hash(runtimeType,bookId,status,pagesRead,rating,note,updatedAt);
+}
 
 @override
 String toString() {
-  return 'ReadingEntry(bookId: $bookId, status: $status, pagesRead: $pagesRead, rating: $rating, note: $note, updatedAt: $updatedAt)';
+    return 'ReadingEntry(bookId: $bookId, status: $status, pagesRead: $pagesRead, rating: $rating, note: $note, updatedAt: $updatedAt)';
 }
 
 

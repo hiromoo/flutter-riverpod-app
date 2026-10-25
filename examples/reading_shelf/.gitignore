@@ -44,3 +44,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Environment values with real project settings
+/config/*.json
+!/config/*.json.example

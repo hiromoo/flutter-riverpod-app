@@ -9,6 +9,7 @@ An agent skill for Codex and Claude Code for designing and building Flutter appl
 - Use Flutter's official [Architecture Best Practices skill](https://github.com/flutter/agent-plugins/blob/main/skills/flutter-apply-architecture-best-practices/SKILL.md) as the architectural baseline, with additional guidance for Riverpod.
 - Organize code by feature and use Riverpod `Notifier` / `AsyncNotifier`, Freezed, and `flutter_hooks`.
 - Pin the verified Flutter SDK with FVM and `.fvmrc` for new Flutter projects.
+- Separate local, staging, and production for new apps and environment configuration tasks. Use `flutter_flavorizr` for Android/iOS, compile-time configuration for web, and VS Code launch configurations.
 - Generate API clients from OpenAPI specifications with OpenAPI Generator's `dart-dio` generator.
 - Use a centralized UI theme, Flutter `gen_l10n` for localization, and type-safe `go_router` routes.
 - Consult additional Flutter agent skills when they fit the task; do not duplicate their contents here.
@@ -47,7 +48,7 @@ If you already have a local clone, symlink it instead, for example `ln -s "$PWD"
 
 ## Sample app
 
-[Reading Shelf](examples/reading_shelf/README.md) is a Flutter web app with a Shelf API. Use it to explore the recommended structure, code generation, and testing approach. It runs without an external API key.
+[Reading Shelf](examples/reading_shelf/README.md) is an Android, iOS, and web reading tracker with a Shelf API. It demonstrates three environments, Firebase/Supabase initialization with Firebase CLI and environment-specific FlutterFire CLI output, a top-left environment banner, and VS Code launch configurations. Local development uses the Supabase CLI public key and Firebase Emulator configuration. Staging and production each require their cloud configuration and a running Shelf API.
 
 ## References
 
@@ -67,6 +68,7 @@ references/
   api-client.md
   ui-localization-and-navigation.md
   testing-and-generation.md
+  environments-and-flavors.md
 ```
 
 ## License

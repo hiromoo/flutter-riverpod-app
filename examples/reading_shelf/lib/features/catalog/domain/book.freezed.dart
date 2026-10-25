@@ -26,16 +26,21 @@ $BookCopyWith<Book> get copyWith => _$BookCopyWithImpl<Book>(this as Book, _$ide
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Book&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.author, author) || other.author == author)&&(identical(other.description, description) || other.description == description)&&(identical(other.pageCount, pageCount) || other.pageCount == pageCount)&&(identical(other.publishedYear, publishedYear) || other.publishedYear == publishedYear)&&(identical(other.genre, genre) || other.genre == genre));
+  final _this = this as Book;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Book&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.title, _this.title) || other.title == _this.title)&&(identical(other.author, _this.author) || other.author == _this.author)&&(identical(other.description, _this.description) || other.description == _this.description)&&(identical(other.pageCount, _this.pageCount) || other.pageCount == _this.pageCount)&&(identical(other.publishedYear, _this.publishedYear) || other.publishedYear == _this.publishedYear)&&(identical(other.genre, _this.genre) || other.genre == _this.genre));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,title,author,description,pageCount,publishedYear,genre);
+int get hashCode {
+  final _this = this as Book;
+  return Object.hash(runtimeType,_this.id,_this.title,_this.author,_this.description,_this.pageCount,_this.publishedYear,_this.genre);
+}
 
 @override
 String toString() {
-  return 'Book(id: $id, title: $title, author: $author, description: $description, pageCount: $pageCount, publishedYear: $publishedYear, genre: $genre)';
+  final _this = this as Book;
+  return 'Book(id: ${_this.id}, title: ${_this.title}, author: ${_this.author}, description: ${_this.description}, pageCount: ${_this.pageCount}, publishedYear: ${_this.publishedYear}, genre: ${_this.genre})';
 }
 
 
@@ -234,16 +239,18 @@ _$BookCopyWith<_Book> get copyWith => __$BookCopyWithImpl<_Book>(this, _$identit
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Book&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.author, author) || other.author == author)&&(identical(other.description, description) || other.description == description)&&(identical(other.pageCount, pageCount) || other.pageCount == pageCount)&&(identical(other.publishedYear, publishedYear) || other.publishedYear == publishedYear)&&(identical(other.genre, genre) || other.genre == genre));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Book&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.author, author) || other.author == author)&&(identical(other.description, description) || other.description == description)&&(identical(other.pageCount, pageCount) || other.pageCount == pageCount)&&(identical(other.publishedYear, publishedYear) || other.publishedYear == publishedYear)&&(identical(other.genre, genre) || other.genre == genre));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,title,author,description,pageCount,publishedYear,genre);
+int get hashCode {
+    return Object.hash(runtimeType,id,title,author,description,pageCount,publishedYear,genre);
+}
 
 @override
 String toString() {
-  return 'Book(id: $id, title: $title, author: $author, description: $description, pageCount: $pageCount, publishedYear: $publishedYear, genre: $genre)';
+    return 'Book(id: $id, title: $title, author: $author, description: $description, pageCount: $pageCount, publishedYear: $publishedYear, genre: $genre)';
 }
 
 
@@ -301,16 +308,21 @@ $BookSearchPageCopyWith<BookSearchPage> get copyWith => _$BookSearchPageCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BookSearchPage&&const DeepCollectionEquality().equals(other.items, items)&&(identical(other.page, page) || other.page == page)&&(identical(other.pageSize, pageSize) || other.pageSize == pageSize)&&(identical(other.total, total) || other.total == total));
+  final _this = this as BookSearchPage;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BookSearchPage&&const DeepCollectionEquality().equals(other.items, _this.items)&&(identical(other.page, _this.page) || other.page == _this.page)&&(identical(other.pageSize, _this.pageSize) || other.pageSize == _this.pageSize)&&(identical(other.total, _this.total) || other.total == _this.total));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(items),page,pageSize,total);
+int get hashCode {
+  final _this = this as BookSearchPage;
+  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.items),_this.page,_this.pageSize,_this.total);
+}
 
 @override
 String toString() {
-  return 'BookSearchPage(items: $items, page: $page, pageSize: $pageSize, total: $total)';
+  final _this = this as BookSearchPage;
+  return 'BookSearchPage(items: ${_this.items}, page: ${_this.page}, pageSize: ${_this.pageSize}, total: ${_this.total})';
 }
 
 
@@ -509,16 +521,18 @@ _$BookSearchPageCopyWith<_BookSearchPage> get copyWith => __$BookSearchPageCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BookSearchPage&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.page, page) || other.page == page)&&(identical(other.pageSize, pageSize) || other.pageSize == pageSize)&&(identical(other.total, total) || other.total == total));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _BookSearchPage&&const DeepCollectionEquality().equals(other.items, _items)&&(identical(other.page, page) || other.page == page)&&(identical(other.pageSize, pageSize) || other.pageSize == pageSize)&&(identical(other.total, total) || other.total == total));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_items),page,pageSize,total);
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_items),page,pageSize,total);
+}
 
 @override
 String toString() {
-  return 'BookSearchPage(items: $items, page: $page, pageSize: $pageSize, total: $total)';
+    return 'BookSearchPage(items: $items, page: $page, pageSize: $pageSize, total: $total)';
 }
 
 

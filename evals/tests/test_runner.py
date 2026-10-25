@@ -117,13 +117,16 @@ class RunnerTests(unittest.TestCase):
         (source/'SKILL.md').write_text('---\nname: linked\n---\n')
         (source/'fixtures/nested').mkdir(parents=True)
         (source/'fixtures/nested/SKILL.md').write_text('---\nname: nested\n---\n')
+        (source/'build/cached').mkdir(parents=True)
+        (source/'build/cached/SKILL.md').write_text('---\nname: cached\n---\n')
         skills=self.root/'skills'
         skills.mkdir()
         (skills/'linked').symlink_to(source,target_is_directory=True)
         overrides=runner.skill_overrides([skills,self.root/'missing'])
         self.assertIn(json.dumps(str(skills/'linked/SKILL.md')),overrides)
         self.assertIn(json.dumps(str(skills/'linked')),overrides)
-        self.assertNotIn('nested',overrides)
+        self.assertIn(json.dumps(str(skills/'linked/fixtures/nested/SKILL.md')),overrides)
+        self.assertNotIn('cached',overrides)
 
     def test_run_codex_records_skill_set_change(self):
         calls=iter(['before','after'])
@@ -163,6 +166,19 @@ class RunnerTests(unittest.TestCase):
             return {'status':'completed','skill_set_changed':True}
         runner.run_codex=fake_run
         self.assertFalse(runner.preflight_role('judge',self.config['judge'],self.root,self.root,None)['isolated'])
+
+    def test_only_usage_limited_preflight_is_archived(self):
+        runner.save(self.root/'preflight.json',{'solver':{'status':'completed','isolated':True},'judge':{'status':'failed','isolated':False}})
+        (self.root/'preflight-judge.jsonl').write_text('{"type":"error","message":"You’ve hit your usage limit."}\n')
+        (self.root/'preflight-judge.txt').write_text('')
+        self.assertTrue(runner.preflight_usage_limited(self.root))
+        runner.archive_preflight(self.root)
+        self.assertFalse((self.root/'preflight.json').exists())
+        self.assertTrue((self.root/'preflight-attempt-1/preflight-judge.jsonl').exists())
+        self.assertFalse(runner.preflight_usage_limited(self.root))
+        runner.save(self.root/'preflight.json',{'judge':{'status':'completed','isolated':False}})
+        (self.root/'preflight-judge.jsonl').write_text('{"type":"error","message":"You’ve hit your usage limit."}\n')
+        self.assertFalse(runner.preflight_usage_limited(self.root))
 
     def test_grade_requires_all_ids_once(self):
         case=self.config['evals'][0]

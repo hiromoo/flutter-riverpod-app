@@ -45,6 +45,11 @@
           "id": "behavior",
           "category": "functional",
           "text": "List/detail, loading, empty, error and retry work; implementation and tests provide concrete evidence."
+        },
+        {
+          "id": "scope",
+          "category": "functional",
+          "text": "Changes stay within the catalog feature: no environment/flavor configuration, platform setup, or SDK manager changes are introduced."
         }
       ],
       "files": [
@@ -70,7 +75,7 @@
         {
           "id": "freezed",
           "category": "convention",
-          "text": "Hand-authored domain records use Freezed; generated DTOs remain generator owned."
+          "text": "Hand-authored domain records added by the solution use Freezed; the existing public ReadingRecord, whose signature the task preserves, may stay unchanged; generated DTOs remain generator owned."
         },
         {
           "id": "regeneration",
@@ -86,6 +91,11 @@
           "id": "nullable",
           "category": "functional",
           "text": "Omitted/null/string response notes and explicit-null/string update bodies satisfy the API contract."
+        },
+        {
+          "id": "scope",
+          "category": "functional",
+          "text": "Changes stay within the API integration: no environment/flavor configuration, platform setup, or SDK manager changes are introduced."
         }
       ],
       "files": [
@@ -132,6 +142,62 @@
       "files": [
         "evals/fixtures/common",
         "evals/fixtures/refactor"
+      ]
+    },
+    {
+      "id": "environment",
+      "prompt": "このアプリにlocal・staging・productionの3環境を導入してください。AndroidとiOSはネイティブflavor、Webはflavorなしで環境を切り替え、環境ごとのAPIベースURLを設定ファイルから読み込んでください。localとstagingでは実行中の環境が画面上で分かるようにし、productionでは表示しないでください。英語と日本語に対応し、TASK_ENV.mdのホストインターフェースと既存の一覧機能を維持し、必要なテストを追加して検証してください。",
+      "expected_output": "3環境のネイティブflavorとWeb設定、型付きの環境設定、環境表示、検証結果と手順。",
+      "files": [
+        "evals/fixtures/common",
+        "evals/fixtures/environment"
+      ],
+      "assertions": [
+        {
+          "id": "selection",
+          "category": "functional",
+          "text": "Each native flavor and its config file resolve to the same environment; web builds for all three environments omit --flavor; a missing, unknown, or mismatched APP_ENV is rejected before startup instead of defaulting to production."
+        },
+        {
+          "id": "native_ids",
+          "category": "functional",
+          "text": "Android and iOS declare local/staging/production flavors; production keeps the existing identifiers and local/staging use distinct identifiers."
+        },
+        {
+          "id": "indicator",
+          "category": "functional",
+          "text": "LOCAL/STAGING indicators appear in English and Japanese and production shows none, with contract tests passing for every config file."
+        },
+        {
+          "id": "validation_docs",
+          "category": "functional",
+          "text": "Tests cover environment parsing and invalid values; documentation gives per-environment run/build commands and states that changing dart-define values requires a full restart or rebuild."
+        },
+        {
+          "id": "scope",
+          "category": "functional",
+          "text": "The catalog list, gateway, demo gateway, and SDK manager are unchanged, and no unrelated feature or backend SDK is added."
+        },
+        {
+          "id": "config_model",
+          "category": "convention",
+          "text": "An AppEnvironment enum and Freezed AppConfig are read once from compile-time values, validated, and exposed through Riverpod; environment parsing does not depend on service packages."
+        },
+        {
+          "id": "flavor_tooling",
+          "category": "convention",
+          "text": "Native flavors are produced by a pinned flutter_flavorizr with flavorizr.yaml listing only the required Android/iOS processors; generated changes do not overwrite hand-owned Dart, IDE, icon, or launch-screen files."
+        },
+        {
+          "id": "banner_l10n",
+          "category": "convention",
+          "text": "The indicator is Flutter's Banner at the top start for local/staging, with LOCAL/STAGING messages and a semantic label from ARB/gen_l10n via context.l; the default DEBUG banner is kept."
+        },
+        {
+          "id": "launch_config",
+          "category": "convention",
+          "text": "VS Code launch entries exist per environment without deviceId; native entries pass --flavor and the matching config file, web entries pass only the config file."
+        }
       ]
     }
   ]

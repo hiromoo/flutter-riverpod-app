@@ -493,6 +493,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{rating} out of 5 stars'**
   String ratingStars(int rating);
+
+  /// Current non-production app environment.
+  ///
+  /// In en, this message translates to:
+  /// **'{environment} environment'**
+  String environmentBanner(String environment);
+
+  /// No description provided for @environmentLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'LOCAL'**
+  String get environmentLocal;
+
+  /// No description provided for @environmentStaging.
+  ///
+  /// In en, this message translates to:
+  /// **'STAGING'**
+  String get environmentStaging;
 }
 
 class _AppLocalizationsDelegate

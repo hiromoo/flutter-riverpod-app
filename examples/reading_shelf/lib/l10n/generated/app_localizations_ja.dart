@@ -229,4 +229,15 @@ class AppLocalizationsJa extends AppLocalizations {
   String ratingStars(int rating) {
     return '5 つ星中 $rating つ星';
   }
+
+  @override
+  String environmentBanner(String environment) {
+    return '$environment 環境';
+  }
+
+  @override
+  String get environmentLocal => 'LOCAL';
+
+  @override
+  String get environmentStaging => 'STAGING';
 }
