@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:reading_shelf/app/composition_root.dart';
 import 'package:reading_shelf/features/reading/application/reading_providers.dart';
 import 'package:reading_shelf/features/reading/domain/reading_entry.dart';
 import 'package:reading_shelf/features/reading/domain/reading_repository.dart';
@@ -8,6 +9,7 @@ void main() {
   test('reading entry action state is scoped to its book', () async {
     final repository = _ReadingRepository()..failSavingBookId = 'book-a';
     final container = ProviderContainer(
+      retry: noAutomaticRetry,
       overrides: [readingRepositoryProvider.overrideWith((ref) => repository)],
     );
     addTearDown(container.dispose);

@@ -10,6 +10,10 @@ import '../features/reading/data/api_reading_repository.dart';
 import '../features/settings/application/settings_providers.dart';
 import '../features/settings/data/shared_preferences_settings_repository.dart';
 
+/// Disables Riverpod's automatic retry so failures reach the error state and
+/// its retry action. Transport retries belong to a repository policy.
+Duration? noAutomaticRetry(int retryCount, Object error) => null;
+
 List<Override> createAppOverrides(String apiBaseUrl) {
   final dio = Dio(BaseOptions(
     baseUrl: apiBaseUrl,

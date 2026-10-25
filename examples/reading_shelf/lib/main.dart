@@ -22,6 +22,7 @@ Future<void> main() async {
   );
   runApp(
     ProviderScope(
+      retry: noAutomaticRetry,
       overrides: [
         appConfigProvider.overrideWithValue(config),
         backendServicesProvider.overrideWithValue(backends),

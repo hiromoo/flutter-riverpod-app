@@ -7,6 +7,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:reading_shelf/app/composition_root.dart';
 import 'package:reading_shelf/app/reading_shelf_app.dart';
 import 'package:reading_shelf/core/environment/app_config.dart';
 import 'package:reading_shelf/core/environment/environment_provider.dart';
@@ -29,6 +30,7 @@ void main() {
       tester.view.devicePixelRatio = 1;
       await tester.pumpWidget(
         ProviderScope(
+          retry: noAutomaticRetry,
           overrides: [
             appConfigProvider.overrideWithValue(
               AppConfig(
@@ -80,6 +82,7 @@ void main() {
       ]) {
         await tester.pumpWidget(
           ProviderScope(
+            retry: noAutomaticRetry,
             key: ValueKey('$environment-$locale'),
             overrides: [
               appConfigProvider.overrideWithValue(
@@ -138,6 +141,7 @@ void main() {
     final books = _BooksRepository();
     await tester.pumpWidget(
       ProviderScope(
+        retry: noAutomaticRetry,
         overrides: [
           appConfigProvider.overrideWithValue(
             AppConfig(
