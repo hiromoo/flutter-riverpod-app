@@ -147,9 +147,41 @@ The remaining miss was `hardening`, again from the reference: the staging
 and production templates granted `checks: write` and `pull-requests: write`
 at workflow level, so the verify, Android and iOS jobs inherited them. The
 reference now keeps `contents: read` at workflow level and grants the write
-permissions only on the job that calls the Hosting deploy. This change has
-not been re-evaluated.
+permissions only on the job that calls the Hosting deploy (commit
+`e16aab3`).
 
 The baseline again missed the same four functional points and all three
 conventions; it also wrote the upload keystore to a path that the Gradle
 signing config resolves differently.
+
+### Rerun after the permissions fix
+
+The `ci` case was run a third time with the skill at `e16aab3`
+(`v3-ci-run3`).
+
+| Condition | Functional | Conventions | Mechanical | Solver time | Solver tokens |
+|---|---:|---:|---:|---:|---:|
+| Without skill | 2/6 | 0/3 | 30/30 | 317.0 s | 1.61 M |
+| With skill | 5/6 | 3/3 | 30/30 | 181.6 s | 0.70 M |
+
+`hardening` passed with the skill, so all three conventions passed again.
+
+The one functional miss, `triggers`, appears to be a grading error. The
+grader said the iOS upload cannot work because the flavor schemes in the
+fixture have an empty `BuildAction`, so archiving them would build nothing.
+The schemes are as `flutter_flavorizr` 2.6.0 generated them, and the
+Reading Shelf sample has the same empty `BuildAction`. An unsigned archive
+of the fixture's `staging` scheme succeeded locally (`flutter build ios
+--config-only --release --flavor staging`, then `xcodebuild -scheme staging
+-configuration Release-staging archive CODE_SIGNING_ALLOWED=NO`) and
+produced `Runner.app`. The score is kept as graded; this evidence is
+recorded beside it, not used to override it. Signed export was not tested.
+
+The baseline missed the same four functional points as in the earlier runs
+and all three conventions.
+
+Across the three `ci` runs, the skill-assisted functional misses that came
+from the reference were fixed one by one (verify steps, build numbers, iOS
+team, documentation status, then job permissions). Each run is a single
+exploratory run.
+
