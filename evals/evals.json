@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "skill_name": "flutter-riverpod-skill",
+  "skill_name": "flutter-riverpod-app",
   "solver": {
     "model": "gpt-6-luna",
     "reasoning_effort": "medium"

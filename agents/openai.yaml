@@ -1,4 +1,4 @@
 interface:
-  display_name: "Flutter Riverpod Skill"
-  short_description: "Build Flutter apps with Riverpod and architecture guidance"
-  default_prompt: "Apply the Flutter Riverpod skill to this app task."
+  display_name: "Flutter Riverpod App"
+  short_description: "Build, configure, and ship Riverpod Flutter apps"
+  default_prompt: "Apply the Flutter Riverpod App skill to this app task."

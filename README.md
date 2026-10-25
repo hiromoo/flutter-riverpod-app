@@ -1,6 +1,6 @@
-# Flutter Riverpod Skill
+# Flutter Riverpod App
 
-An agent skill for Codex and Claude Code for designing and building Flutter applications with Riverpod. Use it when starting a new app, adding features, or incrementally refactoring an existing application.
+An agent skill for Codex and Claude Code for designing, building, and delivering Flutter applications with Riverpod. It covers app architecture, environments and flavors, and CI/CD. Use it when starting a new app, adding features, setting up environments or CI, or incrementally refactoring an existing application.
 
 [English](README.md) | [日本語](README.ja.md)
 
@@ -12,6 +12,7 @@ An agent skill for Codex and Claude Code for designing and building Flutter appl
 - Separate local, staging, and production for new apps and environment configuration tasks. Use `flutter_flavorizr` for Android/iOS, compile-time configuration for web, and VS Code launch configurations.
 - Generate API clients from OpenAPI specifications with OpenAPI Generator's `dart-dio` generator.
 - Use a centralized UI theme, Flutter `gen_l10n` for localization, and type-safe `go_router` routes.
+- Verify every change in GitHub Actions and deliver each environment to the app stores and Firebase Hosting through GitHub Environments.
 - Consult additional Flutter agent skills when they fit the task; do not duplicate their contents here.
 
 ## Usage
@@ -20,31 +21,31 @@ The skill instructions are in [SKILL.md](SKILL.md); focused guidance is availabl
 
 ### Codex
 
-Clone this repository into a Codex skills directory, keeping `flutter-riverpod-skill` as the directory name:
+Clone this repository into a Codex skills directory, keeping `flutter-riverpod-app` as the directory name:
 
 ```sh
 # Available in all projects
-git clone https://github.com/hiromoo/flutter-riverpod-skill.git ~/.agents/skills/flutter-riverpod-skill
+git clone https://github.com/hiromoo/flutter-riverpod-app.git ~/.agents/skills/flutter-riverpod-app
 
 # Or only in one repository (run from the repository root)
-git clone https://github.com/hiromoo/flutter-riverpod-skill.git .agents/skills/flutter-riverpod-skill
+git clone https://github.com/hiromoo/flutter-riverpod-app.git .agents/skills/flutter-riverpod-app
 ```
 
-If you already have a local clone, symlink it instead, for example `ln -s "$PWD" ~/.agents/skills/flutter-riverpod-skill`. Restart Codex if the skill does not appear. Codex uses the skill automatically for matching Flutter tasks; you can also invoke it explicitly by mentioning `$flutter-riverpod-skill` or selecting it from `/skills`.
+If you already have a local clone, symlink it instead, for example `ln -s "$PWD" ~/.agents/skills/flutter-riverpod-app`. Restart Codex if the skill does not appear. Codex uses the skill automatically for matching Flutter tasks; you can also invoke it explicitly by mentioning `$flutter-riverpod-app` or selecting it from `/skills`.
 
 ### Claude Code
 
-Clone this repository into a Claude Code skills directory, keeping `flutter-riverpod-skill` as the directory name:
+Clone this repository into a Claude Code skills directory, keeping `flutter-riverpod-app` as the directory name:
 
 ```sh
 # Available in all projects
-git clone https://github.com/hiromoo/flutter-riverpod-skill.git ~/.claude/skills/flutter-riverpod-skill
+git clone https://github.com/hiromoo/flutter-riverpod-app.git ~/.claude/skills/flutter-riverpod-app
 
 # Or only in one project (run from the project root)
-git clone https://github.com/hiromoo/flutter-riverpod-skill.git .claude/skills/flutter-riverpod-skill
+git clone https://github.com/hiromoo/flutter-riverpod-app.git .claude/skills/flutter-riverpod-app
 ```
 
-If you already have a local clone, symlink it instead, for example `ln -s "$PWD" ~/.claude/skills/flutter-riverpod-skill`. Claude Code loads the skill automatically for matching Flutter tasks; you can also invoke it explicitly with `/flutter-riverpod-skill`.
+If you already have a local clone, symlink it instead, for example `ln -s "$PWD" ~/.claude/skills/flutter-riverpod-app`. Claude Code loads the skill automatically for matching Flutter tasks; you can also invoke it explicitly with `/flutter-riverpod-app`.
 
 ## Sample app
 

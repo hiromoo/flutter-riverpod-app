@@ -1,5 +1,5 @@
 name: reading_shelf
-description: Reading Shelf sample app demonstrating the flutter-riverpod-skill.
+description: Reading Shelf sample app demonstrating the flutter-riverpod-app skill.
 publish_to: none
 version: 1.0.0+1
 environment:

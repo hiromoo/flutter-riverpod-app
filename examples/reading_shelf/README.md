@@ -1,6 +1,6 @@
 # Reading Shelf
 
-このサンプルは、リポジトリの Flutter Riverpod Skill を使ったAndroid・iOS・Web向けの読書記録アプリです。架空の書籍カタログを検索し、本棚への登録、読書記録の編集、言語・テーマ切替を試せます。local／staging／productionの接続設定を分離し、FirebaseとSupabaseの初期化例を含みます。
+このサンプルは、このリポジトリの flutter-riverpod-app スキルを使ったAndroid・iOS・Web向けの読書記録アプリです。架空の書籍カタログを検索し、本棚への登録、読書記録の編集、言語・テーマ切替を試せます。local／staging／productionの接続設定を分離し、FirebaseとSupabaseの初期化例を含みます。
 
 ## 必要なもの
 
