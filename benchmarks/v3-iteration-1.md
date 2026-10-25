@@ -125,4 +125,31 @@ artifact, which would delete it before the Hosting deploy.
 The reference now keeps generation and the diff check in every verify
 workflow, uses `run_number * 100 + run_attempt`, passes `APPLE_TEAM_ID` to
 the archive and to a copy of `ExportOptions.plist`, and asks `docs/ci.md`
-for a verification status. These changes have not been re-evaluated yet.
+for a verification status (commit `7b7e27d`).
+
+### Rerun after the reference fixes
+
+The `ci` case was run once more with the skill at `7b7e27d`
+(`v3-ci-run2`).
+
+| Condition | Functional | Conventions | Mechanical | Solver time | Solver tokens |
+|---|---:|---:|---:|---:|---:|
+| Without skill | 2/6 | 0/3 | 30/30 | 158.0 s | 0.67 M |
+| With skill | 6/6 | 2/3 | 30/30 | 196.8 s | 0.75 M |
+
+With the skill, all four earlier functional misses passed: the verify
+workflow regenerates code and fails on a generated-output diff, build
+numbers use `run_number * 100 + run_attempt`, iOS signing takes
+`APPLE_TEAM_ID`, and `docs/ci.md` states that signing, store uploads and
+Hosting deploys are unverified.
+
+The remaining miss was `hardening`, again from the reference: the staging
+and production templates granted `checks: write` and `pull-requests: write`
+at workflow level, so the verify, Android and iOS jobs inherited them. The
+reference now keeps `contents: read` at workflow level and grants the write
+permissions only on the job that calls the Hosting deploy. This change has
+not been re-evaluated.
+
+The baseline again missed the same four functional points and all three
+conventions; it also wrote the upload keystore to a path that the Gradle
+signing config resolves differently.

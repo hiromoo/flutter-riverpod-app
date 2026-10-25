@@ -153,7 +153,7 @@ Values compiled into the client are public, so they are Variables, not Secrets. 
 ## Workflow rules
 
 - Check out with `persist-credentials: false`.
-- Declare the minimum `permissions` at workflow level. Hosting previews need `checks: write` and `pull-requests: write`; everything else needs `contents: read`.
+- Declare `permissions: contents: read` at workflow level and grant more only on the job that needs it. The Hosting deploy job needs `checks: write` and `pull-requests: write` for PR previews; set them on the calling `web` job, because a reusable workflow cannot get more than its caller grants. Verify, Android and iOS jobs keep `contents: read`.
 - Use `concurrency` per PR or ref with `cancel-in-progress: false`, so an upload is never cut off halfway.
 - Build numbers are `run_number * 100 + run_attempt`. Both stores reject a reused build number, and re-runs must upload too. GitHub allows at most 50 re-runs of a workflow run, so `run_attempt` stays below 100; a factor of 10 would collide from the tenth attempt. `run_number` counts per workflow, so deliver each store app from one workflow only. Version names come from `version` in `pubspec.yaml`; bump it on the release branch.
 - Build the release artifact and upload it in the same job. Do not pass signing material between jobs.
@@ -173,8 +173,6 @@ concurrency:
   cancel-in-progress: false
 permissions:
   contents: read
-  checks: write
-  pull-requests: write
 jobs:
   verify:
     uses: ./.github/workflows/verify.yml
@@ -200,6 +198,11 @@ jobs:
   web:
     needs: verify
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    # Only the Hosting deploy writes checks and the PR preview comment.
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
     uses: ./.github/workflows/deploy-web.yml
     secrets: inherit
     with:
@@ -222,8 +225,6 @@ concurrency:
   cancel-in-progress: false
 permissions:
   contents: read
-  checks: write
-  pull-requests: write
 jobs:
   verify:
     uses: ./.github/workflows/verify.yml
@@ -253,6 +254,10 @@ jobs:
   web:
     needs: verify
     if: github.event_name == 'push'
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
     uses: ./.github/workflows/deploy-web.yml
     secrets: inherit
     with:
