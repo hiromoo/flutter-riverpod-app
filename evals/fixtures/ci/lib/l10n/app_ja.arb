@@ -1,0 +1,7 @@
+{
+  "@@locale": "ja",
+  "localEnvironment": "LOCAL",
+  "stagingEnvironment": "STAGING",
+  "localEnvironmentSemantics": "ローカル環境",
+  "stagingEnvironmentSemantics": "ステージング環境"
+}

@@ -1,0 +1,7 @@
+{
+  "@@locale": "en",
+  "localEnvironment": "LOCAL",
+  "stagingEnvironment": "STAGING",
+  "localEnvironmentSemantics": "Local environment",
+  "stagingEnvironmentSemantics": "Staging environment"
+}

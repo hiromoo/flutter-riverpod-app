@@ -199,6 +199,62 @@
           "text": "VS Code launch entries exist per environment without deviceId; native entries pass --flavor and the matching config file, web entries pass only the config file."
         }
       ]
+    },
+    {
+      "id": "ci",
+      "prompt": "このアプリにGitHub ActionsでCI/CDを導入してください。変更は配信前に必ず検証し、stagingはAndroidの内部テスト・TestFlight・Firebase Hostingへ、productionはストア審査用のビルドとFirebase Hostingの本番へ配信できるようにしてください。署名鍵などの秘密情報はリポジトリに含めず、必要なSecrets・Variables、初期設定とリリース手順を文書化してください。TASK_CI.mdの条件と既存のアプリ・環境設定を維持し、ローカルでできる検証を行ってください。",
+      "expected_output": "検証を前提にしたstaging・productionの配信ワークフロー、秘密情報を含まない署名設定、Secrets・Variablesと手順の文書、ローカル検証結果。",
+      "files": [
+        "evals/fixtures/common",
+        "evals/fixtures/ci"
+      ],
+      "assertions": [
+        {
+          "id": "verify_gate",
+          "category": "functional",
+          "text": "Pull requests and work branches run verification (code generation, localization generation, analysis, tests, and a check that committed generated files are current), and every delivery job depends on that verification passing."
+        },
+        {
+          "id": "triggers",
+          "category": "functional",
+          "text": "Delivery follows TASK_CI.md: merges to develop deliver staging to Play internal testing, TestFlight and Hosting; release/hotfix pull requests or merges to main upload production store builds for review without submitting them and deploy production Hosting."
+        },
+        {
+          "id": "environment_mapping",
+          "category": "functional",
+          "text": "Each delivery builds native apps with the matching --flavor and that environment's config and web without --flavor, targets the TASK_CI.md identifiers, and uses build numbers that stay unique across runs and re-runs."
+        },
+        {
+          "id": "secrets",
+          "category": "functional",
+          "text": "No credential is committed; signing keys and service accounts come from GitHub Secrets; fork pull requests cannot reach deploy jobs or secrets; local release builds still work without any signing secret."
+        },
+        {
+          "id": "docs",
+          "category": "functional",
+          "text": "Documentation lists every required secret and variable with its scope, the one-time Play, App Store Connect and Firebase setup (including the manual first Play upload), and the release procedure; the summary reports store and Hosting delivery as not verified rather than working."
+        },
+        {
+          "id": "scope",
+          "category": "functional",
+          "text": "lib/, test/, config/, flavorizr.yaml and .fvmrc are unchanged; changes are limited to CI workflows, CI scripts, signing/export configuration and documentation."
+        },
+        {
+          "id": "sdk_setup",
+          "category": "convention",
+          "text": "Every CI job installs the Flutter version from .fvmrc through one shared setup (composite action or reusable workflow) instead of hard-coding a version."
+        },
+        {
+          "id": "reusable_delivery",
+          "category": "convention",
+          "text": "Per-platform delivery is a reusable workflow or composite action parameterized by environment, where the GitHub Environment name, the Flutter flavor and APP_ENV are the same value."
+        },
+        {
+          "id": "hardening",
+          "category": "convention",
+          "text": "Checkouts use persist-credentials: false, workflows declare minimal permissions, and concurrency never cancels an in-progress upload."
+        }
+      ]
     }
   ]
 }
