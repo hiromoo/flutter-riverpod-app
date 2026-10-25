@@ -158,6 +158,26 @@ fvm flutter build ios --simulator --no-codesign --flavor local --dart-define-fro
 
 実際の設定を入力した後は、アプリ起動、Shelf APIでの検索・保存、Firebase／Supabaseの必要な接続・権限を各環境で確認してください。現時点ではFirebase／Supabaseの業務機能がないため、SDKの初期化成功とサービスへの実リクエスト成功を分けて確認します。配布用の署名・ストア公開・Webホスティングも別途設定が必要です。
 
+## CI／配信
+
+リポジトリの [`.github/workflows/reading-shelf.yml`](../../.github/workflows/reading-shelf.yml) が、`.fvmrc` のFlutterで生成・解析・テストを実行し、生成物（`lib`、`pubspec.lock`、API client）の差分がないことを確認します。続けて、配信と同じ経路でstaging設定を注入し、WebとAndroid App Bundleをビルドします。upload鍵を登録していないため、App Bundleはdebug鍵で署名されます。
+
+このサンプルにはストアやFirebase Hostingの配信先がないため、配信ワークフローは含めていません。実アプリでは [references/ci-and-delivery.md](../../references/ci-and-delivery.md) のテンプレートを使ってください。サンプルに含めている配信用の部品は次のとおりです。
+
+- `scripts/ci/write_config.sh`: GitHub Environmentの変数から `config/ci.json` を生成します。必須値が空なら失敗します。`config/ci.json` はGit管理外です。
+- `android/app/build.gradle.kts`: `ANDROID_KEYSTORE_PATH` などがあればupload鍵で署名し、なければdebug鍵で署名します。
+- `ios/ExportOptions.plist`: App Store Connectへのアップロード設定です。使う前に `teamID` を設定してください。
+
+```sh
+cd examples/reading_shelf
+APP_ENV=staging API_BASE_URL=https://api.staging.example.com SUPABASE_URL=https://staging.supabase.example.com \
+  SUPABASE_PUBLISHABLE_KEY=sb_publishable_placeholder sh scripts/ci/write_config.sh
+fvm flutter build web --release --dart-define-from-file=config/ci.json
+fvm flutter build appbundle --release --flavor staging --dart-define-from-file=config/ci.json
+```
+
+上の値は仮の値なので、ビルドの確認にしか使えません。ストアへのアップロード、iOSのアーカイブと署名、Hostingへのデプロイは確認していません。
+
 ## Skill との対応
 
 | Skill 方針 | サンプルでの例 |
@@ -170,6 +190,7 @@ fvm flutter build ios --simulator --no-codesign --flavor local --dart-define-fro
 | Freezed domain model | feature の `domain/` |
 | typed go_router routes | `lib/app/router.dart` |
 | `gen_l10n`, `context.l.*`, Material 3 | `lib/l10n/`, `lib/core/l10n/`, `lib/app/` |
+| CI検証と配信用の設定注入・署名 | `.github/workflows/reading-shelf.yml`, `scripts/ci/write_config.sh`, `android/app/build.gradle.kts` |
 
 詳細な規約はリポジトリルートの [SKILL.md](../../SKILL.md) と `references/` を参照してください。
 
