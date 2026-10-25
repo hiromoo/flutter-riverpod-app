@@ -64,5 +64,8 @@ Changes since iteration 3:
 - Allow an optional `config` parameter in the environment fixture's host
   interface in the next series, or say in the guidance what to do when the
   host constructor is fixed (for example, resolve once in a static field).
+  The guidance option is applied after this run: the reference now resolves
+  the config once in a top-level `final` when the host constructor is fixed.
+  It has not been evaluated yet.
 - Look at why the Freezed trigger for pre-existing plain classes still misses
   about one run in three.

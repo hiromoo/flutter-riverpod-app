@@ -22,7 +22,15 @@ class HostApp extends StatelessWidget {
 }
 ```
 
-`main()` resolves the config, failing before `runApp`, and passes it in: `runApp(HostApp(config: AppConfig.fromEnvironment(nativeFlavor: kIsWeb ? null : appFlavor)))`. Widgets read it through `appConfigProvider`. Tests inject a resolved `AppConfig` instead of depending on defines, so `flutter test` passes without flags. Add one widget test that pumps the root widget exactly as the host does.
+`main()` resolves the config, failing before `runApp`, and passes it in: `runApp(HostApp(config: AppConfig.fromEnvironment(nativeFlavor: kIsWeb ? null : appFlavor)))`. Widgets read it through `appConfigProvider`.
+
+If the host constructor is fixed and cannot take a `config` parameter, resolve it once in a top-level `final`, which Dart initializes on first access and then reuses:
+
+```dart
+final AppConfig resolvedAppConfig = AppConfig.fromEnvironment(nativeFlavor: kIsWeb ? null : appFlavor);
+```
+
+`main()` reads `resolvedAppConfig` before `runApp`, so a missing or invalid `APP_ENV` still fails at startup. The host widget's scope overrides `appConfigProvider` with the same value. Do not call `AppConfig.fromEnvironment` or `resolve` again in `build` or in the widget constructor. Tests inject a resolved `AppConfig` instead of depending on defines, so `flutter test` passes without flags. Add one widget test that pumps the root widget exactly as the host does.
 
 Use `flutter_flavorizr` to create Android product flavors and iOS schemes/configurations. Pin an exact stable flavorizr version (for example `flutter_flavorizr: 2.6.0`, not a caret range) compatible with the project's pinned Flutter/Dart SDK. Keep flavor definitions in `flavorizr.yaml` and explicitly list only required processors (`android:androidManifest`, `android:buildGradle`, `android:flavorizrGradle`, `ios:xcconfig`, `ios:buildTargets`, `ios:schema`, `ios:plist`). Do not run IDE, Dart entrypoint, Firebase, icon, or launch-screen processors unless the task needs them. Review its diff on a clean tree before accepting generated changes. Android/iOS identifiers should distinguish non-production installs; retain the established production identifiers. Native flavor and `APP_ENV` must agree.
 
