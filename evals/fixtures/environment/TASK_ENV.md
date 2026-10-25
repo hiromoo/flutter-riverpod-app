@@ -25,11 +25,14 @@ environment so a future HTTP client can read it.
   local and staging can be installed beside it.
 - Web is built without `--flavor`, for example
   `flutter build web --dart-define-from-file=config/staging.json`.
+- Each flavor must build as a debug Android APK and an iOS simulator app.
 
 ## Host and test interfaces
 
 Keep `EvalApp({Key? key, required CatalogGateway gateway, Locale locale = const Locale('en')})`
-in `lib/eval_app.dart`. `EvalApp` itself reflects the environment selected at compile time:
+in `lib/eval_app.dart`. You may add optional named parameters, such as a resolved configuration
+passed from `main()`. When constructed with only the parameters above, `EvalApp` itself reflects
+the environment selected at compile time:
 - local shows the text `LOCAL` and staging shows `STAGING` on screen, in English and Japanese;
 - production shows neither.
 

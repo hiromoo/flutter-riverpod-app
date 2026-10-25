@@ -344,6 +344,8 @@ def verify(case, run, sdk, env):
                 define = f'--dart-define-from-file=config/{name}.json'
                 check(f'contract_tests_{name}', [flutter, 'test', define, 'test/evaluator_contract_test.dart', '--reporter', 'expanded'])
                 check(f'web_build_{name}', [flutter, 'build', 'web', define])
+                check(f'android_build_{name}', [flutter, 'build', 'apk', '--debug', '--flavor', name, define])
+                check(f'ios_build_{name}', [flutter, 'build', 'ios', '--simulator', '--no-codesign', '--flavor', name, define])
         else:
             check('contract_tests', [flutter, 'test', *flags, 'test/evaluator_contract_test.dart', '--reporter', 'expanded'])
         check('all_tests', [flutter, 'test', *flags, '--reporter', 'expanded'])
