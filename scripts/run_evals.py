@@ -518,7 +518,7 @@ def main():
     parser.add_argument('action', choices=['validate', 'dry-run', 'run', 'verify', 'judge', 'aggregate'])
     parser.add_argument('--output', type=Path, default=ROOT/'eval-results/iteration-1')
     parser.add_argument('--sdk', type=Path, default=Path.home()/'fvm/versions'/read(ROOT/'evals/fixtures/common/.fvmrc')['flutter'])
-    parser.add_argument('--case', choices=CASES)
+    parser.add_argument('--case', choices=CASES, action='append', help='repeat to select several cases')
     args = parser.parse_args()
     config = read(ROOT/'evals/evals.json')
     validate(config)
@@ -563,7 +563,7 @@ def main():
     if args.action == 'run' and not all(x['status']=='completed' and x['isolated'] for x in read(output/'preflight.json').values()):
         raise SystemExit('Model availability / skill isolation preflight failed; see preflight.json')
     for case in config['evals']:
-        if args.case and case['id'] != args.case:
+        if args.case and case['id'] not in args.case:
             continue
         for condition in CONDITIONS:
             run = output/case['id']/condition

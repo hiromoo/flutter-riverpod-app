@@ -29,16 +29,21 @@ python3 scripts/run_evals.py validate
 python3 scripts/run_evals.py dry-run
 python3 -m unittest discover -s evals/tests -v
 
-# Explicit model calls: eight implementations, verification, then grading per run:
+# Routine run: every case except api, verification, then grading per run.
+python3 scripts/run_evals.py run --case feature --case refactor --case environment --case ci
+
+# All ten implementations, including api:
 python3 scripts/run_evals.py run
 
-# A case can be selected. Completed and ordinary failed records are not overwritten.
+# Repeat --case to select cases. Completed and ordinary failed records are not overwritten.
 # Usage-limit failures alone are archived as numbered attempts and resumed:
 python3 scripts/run_evals.py run --case api
 
 # Rebuild summaries without model calls:
 python3 scripts/run_evals.py aggregate
 ```
+
+The api case is a regression check. From series 3 both conditions score nearly full marks on it, and its `freezed` assertion no longer separates them because the task preserves `ReadingRecord`; Freezed adoption is measured by the feature case. Its independent regeneration check still guards the most revised guidance, so run it when `references/api-client.md`, the API parts of `references/testing-and-generation.md`, or the OpenAPI row of `SKILL.md` change, and leave it out of routine runs. Run totals without api are not comparable with totals that include it.
 
 Use a new `--output` directory for a fresh iteration. Changed fixtures, prompts, rubrics or tests are rejected against the original iteration manifest. Do not delete failed run records to obtain a better score. Record any harness correction and revalidation separately. The `verify` and `judge` actions complete missing verification/grading artifacts without regenerating outputs; a recorded attempt is retained rather than silently retried.
 
